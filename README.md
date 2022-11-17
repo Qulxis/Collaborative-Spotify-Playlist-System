@@ -1,6 +1,6 @@
 # spotify-big-data-project
 Big data project: Andrew, Alban, Kenneth. Playlist collaboration project for EECS6893
-./
+```
 ├── README.md
 ├── src
 │   ├── APIs
@@ -12,3 +12,4 @@ Big data project: Andrew, Alban, Kenneth. Playlist collaboration project for EEC
 └── tree.ipynb
 
 3 directories, 6 files
+```
