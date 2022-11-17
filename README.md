@@ -2,14 +2,19 @@
 Big data project: Andrew, Alban, Kenneth. Playlist collaboration project for EECS6893
 ```
 ├── README.md
+├── requirements.txt
 ├── src
 │   ├── APIs
 │   │   └── spotipy_access.py
+│   ├── DataVisualization.ipynb
 │   ├── Organization.md
 │   ├── andrew_dev.ipynb
-│   └── data
-│       └── README.txt
+│   ├── data
+│   │   ├── README.txt
+│   │   └── andrew
+│   │       └── andrew_last_2000_songs
+│   └── kenneth_dev.ipynb
 └── tree.ipynb
 
-3 directories, 6 files
+4 directories, 10 files
 ```
