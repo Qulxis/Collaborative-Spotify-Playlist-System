@@ -1,6 +1,8 @@
 import json
 import requests
 from urllib.parse import quote
+import string
+import random
 
 
 class SpotifyClient:
@@ -12,7 +14,7 @@ class SpotifyClient:
     SPOTIFY_API_URL = f"{SPOTIFY_API_BASE_URL}/{API_VERSION}"
 
     # Server-side Parameters
-    STATE = ""
+    STATE = ''.join(random.choice(string.ascii_letters) for i in range(16))
     SHOW_DIALOG_bool = True
     SHOW_DIALOG_str = str(SHOW_DIALOG_bool).lower()
     SCOPE = "playlist-modify-public playlist-modify-private playlist-read-private user-read-recently-played"
@@ -31,15 +33,17 @@ class SpotifyClient:
 
     def get_auth_url(self):
         auth_query_parameters = {
-            "response_type": "code",
+            "response_type": 'code',
+            "client_id": self.client_id,
             "redirect_uri": self.redirect_uri,
             "scope": self.SCOPE,
             "show_dialog": self.SHOW_DIALOG_str,
-            "client_id": self.client_id
-            # "state": STATE,
+            "state": self.STATE,
         }
 
-        url_args = "&".join([f"{key}={quote(str(val))}" for key, val in auth_query_parameters.items()])
+        url_args = "&".join(
+            [f"{key}={quote(str(val))}" for key, val in auth_query_parameters.items()])
+        print("url", url_args)
         return f"{self.SPOTIFY_AUTH_URL}/?{url_args}"
 
     def get_authorization(self, auth_token):
@@ -60,7 +64,8 @@ class SpotifyClient:
 
         response_data = json.loads(post_request.text)
         self._access_token = response_data["access_token"]
-        self.authorization_header = {"Authorization": f"Bearer {self._access_token}"}
+        self.authorization_header = {
+            "Authorization": f"Bearer {self._access_token}"}
 
         return dict(
             access_token=response_data["access_token"],
