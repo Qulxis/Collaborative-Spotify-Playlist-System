@@ -1,6 +1,6 @@
 import json
 import requests
-
+import sys
 
 class SpotifyHandler:
     # Spotify API URLS
@@ -22,8 +22,11 @@ class SpotifyHandler:
         playlists = playlists['items']
 
         playlist_data = []
-
+        print("gettign user playlists and tracks")
         for playlist in playlists:
+            print()
+            print(playlist['name'])
+            # print('Hello world!', file=sys.stderr)
             playlist_data.append({
                 'playlist_name': playlist['name'],
                 'playlist_url': playlist['external_urls']['spotify'],
@@ -41,13 +44,30 @@ class SpotifyHandler:
         """
         playlist_api_endpoint = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
         tracks = json.loads(requests.get(playlist_api_endpoint, headers=auth_header).text)['items']
+        # print(tracks)
+        # print(tracks)
+        res = []
+        for track in tracks:
+            try:
+                    {
+                    'track_artist': track['track']['artists'][0]['name'],
+                    'track_name': track['track']['name'],
+                    'track_image': track['track']['album']['images'][0]['url'],
+                    'track_url': track['track']['external_urls']['spotify'],
+                    'track_id': track['track']['id']
+                    }
+            except:
+                # print(track['track']['name'])
+                print(track['track'])
+            else:
+                res.append({
+                    
+                    'track_artist': track['track']['artists'][0]['name'],
+                    'track_name': track['track']['name'],
+                    'track_image': track['track']['album']['images'][0]['url'],
+                    'track_url': track['track']['external_urls']['spotify'],
+                    'track_id': track['track']['id']
+                })
 
-        return [
-            {
-                'track_artist': track['track']['artists'][0]['name'],
-                'track_name': track['track']['name'],
-                'track_image': track['track']['album']['images'][0]['url'],
-                'track_url': track['track']['external_urls']['spotify'],
-                'track_id': track['track']['id']
-            } for track in tracks
-        ]
+        return res
+           
