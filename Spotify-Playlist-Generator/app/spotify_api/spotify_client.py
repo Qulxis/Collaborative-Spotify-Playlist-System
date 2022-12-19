@@ -29,7 +29,7 @@ class SpotifyClient:
         self.port = port
         self._access_token = ''
         self.authorization_header = ''
-        self.redirect_uri = f"{self.client_side_url}/callback/q" if port is None else f"{self.client_side_url}:{self.port}/callback/q"
+        self.redirect_uri = f"{self.client_side_url}/callback" if port is None else f"{self.client_side_url}:{self.port}/callback"
 
     def get_auth_url(self):
         auth_query_parameters = {
