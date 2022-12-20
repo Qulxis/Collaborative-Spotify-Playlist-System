@@ -81,7 +81,22 @@ def get_playlists(collection,auth=default_auth_path):
     for doc in docs:
         playlists.append(doc.to_dict())
     return playlists
-    
+
+def get_track_ids(playlists):
+    """
+    Inputs:
+    - playlists (arr): output from get_playlists
+    Outputs:
+    - song_ids (arr): list/array of all song ids from all playlists. No repeating ids
+    """
+    song_ids = []
+    for playlist in playlists:
+        # print(playlist)
+        for track in playlist['playlist_tracks']:
+            song_ids.append(track['track_id'])
+    return song_ids
+
+
 
 
 
