@@ -54,10 +54,34 @@ def clear_collection(collection, auth=default_auth_path):
     except:
         print("Authentication already loaded")
     db = firestore.client()
+
     ref_coll = db.collection(collection)
     docs = ref_coll.stream()
     for doc in docs:
         db.collection(collection).document(doc.id).delete()
         print("Deleting Playlist:", doc.id )
     return
+def get_playlists(collection,auth=default_auth_path):
+    """
+    Inputs:
+    - collection (str): collection to gather data from
+    - auth (str): 
+    Output:
+    - playlists (arr): each element is a playlist dictionary
+    """
+    try: 
+        cred = credentials.Certificate(auth)
+        firebase_admin.initialize_app(cred)
+    except:
+        print("Authentication already loaded")
+    db = firestore.client()
+    playlists = [] # returned with all playlist dictionaries
+    ref_coll = db.collection(collection)
+    docs = ref_coll.stream()
+    for doc in docs:
+        playlists.append(doc.to_dict())
+    return playlists
+    
+
+
 
