@@ -1,6 +1,7 @@
 import firebase_admin
 from firebase_admin import credentials, firestore
 import numpy as np
+import pandas as pd
 default_auth_path = "data/andrew/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json"
 
 def add_playlists(playlists,collection, auth=default_auth_path):
@@ -96,7 +97,35 @@ def get_track_ids(playlists):
             song_ids.append(track['track_id'])
     return song_ids
 
+def load_reference_data(collection='bigdata2',num_tracks=1000,sort_by=None,auth=default_auth_path,
+selected_features = ['acousticness', 'danceability','duration_ms', 'energy', 'instrumentalness', 'key','liveness','loudness','mode','speechiness','tempo','valence']):
+    """
+    Inputs:
+    - collection (str): must be to collection where each element is just the features of the track
+    - num_track (int): number of tracks to get data on
+    - sort_by (str): the feature to sort the tracks by before taking top num_tracks
+    - auth (str): path to authentication token
 
+    Outputs:
+
+    """
+    try: 
+        cred = credentials.Certificate(auth)
+        firebase_admin.initialize_app(cred)
+    except:
+        print("Authentication already loaded")
+    db = firestore.client()
+    doc_ref = db.collection(collection)
+    if sort_by:
+         query = doc_ref.order_by(sort_by, direction=firestore.Query.DESCENDING).limit(num_tracks)
+    else:
+        query = doc_ref.limit(num_tracks)
+    results = query.stream()
+    df = pd.DataFrame(columns=selected_features)
+    for doc in results:
+        # print()
+        df = pd.concat([df,pd.DataFrame([doc.to_dict()])])
+    return df[selected_features]
 
 
 
