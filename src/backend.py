@@ -98,7 +98,7 @@ def get_track_ids(playlists):
     return song_ids
 
 def load_reference_data(collection='bigdata2',num_tracks=1000,sort_by=None,auth=default_auth_path,
-selected_features = ['acousticness', 'danceability','duration_ms', 'energy', 'instrumentalness', 'key','liveness','loudness','mode','speechiness','tempo','valence']):
+selected_features = ['acousticness', 'danceability','durationMs', 'energy', 'instrumentalness', 'key','liveness','loudness','mode','speechiness','tempo','valence']):
     """
     Inputs:
     - collection (str): must be to collection where each element is just the features of the track
