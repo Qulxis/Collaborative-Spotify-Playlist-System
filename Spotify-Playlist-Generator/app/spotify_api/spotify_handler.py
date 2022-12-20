@@ -26,7 +26,6 @@ class SpotifyHandler:
         for playlist in playlists:
             print()
             print(playlist['name'])
-            # print('Hello world!', file=sys.stderr)
             playlist_data.append({
                 'playlist_name': playlist['name'],
                 'playlist_url': playlist['external_urls']['spotify'],
@@ -44,8 +43,7 @@ class SpotifyHandler:
         """
         playlist_api_endpoint = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
         tracks = json.loads(requests.get(playlist_api_endpoint, headers=auth_header).text)['items']
-        # print(tracks)
-        # print(tracks)
+
         res = []
         for track in tracks:
             try:
@@ -57,7 +55,6 @@ class SpotifyHandler:
                     'track_id': track['track']['id']
                     }
             except:
-                # print(track['track']['name'])
                 print(track['track'])
             else:
                 res.append({
