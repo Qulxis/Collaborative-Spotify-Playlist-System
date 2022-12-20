@@ -95,7 +95,7 @@ def get_track_ids(playlists):
         # print(playlist)
         for track in playlist['playlist_tracks']:
             song_ids.append(track['track_id'])
-    return song_ids
+    return list(set(song_ids))
 
 def load_reference_data(collection='bigdata2',num_tracks=1000,sort_by=None,auth=default_auth_path,
 selected_features = ['acousticness', 'danceability','durationMs', 'energy', 'instrumentalness', 'key','liveness','loudness','mode','speechiness','tempo','valence']):
