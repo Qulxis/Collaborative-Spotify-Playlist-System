@@ -35,28 +35,15 @@ def add_playlists(playlists,collection, auth=default_auth_path):
     db = firestore.client()
 
     for record in playlists:
-        doc_ref = db.colleciton(collection).document(record['playlist_name'])
+        doc_ref = db.collection(collection).document(record['playlist_name'])
         doc_ref.set(record)
     return
-def clear_collection(playlists,collection, auth=default_auth_path):
+
+def clear_collection(collection, auth=default_auth_path):
     """
     Inputs:
-    - playlists:
-    Playlist must be a list of dictionaries in the form:
-        'playlist_name': playlist['name'],
-        'playlist_url': playlist['external_urls']['spotify'],
-        'playlist_img_url': playlist['images'][0]['url'],
-        'playlist_tracks_url': playlist['tracks']['href'],
-        'playlist_id': playlist['id'],
-        'playlist_tracks': self._get_playlist_tracks(auth_header, playlist['id'])
-    Songs must be in format of:
-        'track_artist': track['track']['artists'][0]['name'],
-        'track_name': track['track']['name'],
-        'track_image': track['track']['album']['images'][0]['url'],
-        'track_url': track['track']['external_urls']['spotify'],
-        'track_id': track['track']['id']
-        }
-
+    - collection (str): collection set to clear
+    - auth (str): path to auth file.
     Output:
     - None
     
@@ -67,8 +54,10 @@ def clear_collection(playlists,collection, auth=default_auth_path):
     except:
         print("Authentication already loaded")
     db = firestore.client()
-
-    for record in playlists:
-        doc_ref = db.colleciton(collection).document(record['playlist_name'])
-        doc_ref.set(record)
+    ref_coll = db.collection(collection)
+    docs = ref_coll.stream()
+    for doc in docs:
+        db.collection(collection).document(doc.id).delete()
+        print("Deleting Playlist:", doc.id )
     return
+
