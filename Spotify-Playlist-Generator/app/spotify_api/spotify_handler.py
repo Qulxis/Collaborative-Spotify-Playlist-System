@@ -25,7 +25,7 @@ class SpotifyHandler:
         print("getting user playlists and tracks")
         for playlist in playlists:
             print()
-            print(playlist['name'])
+            # print(playlist['name'])
             playlist_data.append({
                 'playlist_name': playlist['name'],
                 'playlist_url': playlist['external_urls']['spotify'],
@@ -55,7 +55,8 @@ class SpotifyHandler:
                     'track_id': track['track']['id']
                     }
             except:
-                print(track['track'])
+                # print(track['track'])
+                print('error')
             else:
                 res.append({
                     

@@ -1,0 +1,1 @@
+Put your SDK auth in here and then update .env variables

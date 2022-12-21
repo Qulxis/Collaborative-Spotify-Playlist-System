@@ -19,6 +19,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import plot_tree, DecisionTreeClassifier
 
+from app.backend.backend import *
+
 ## Edit this to do all playlists
 def get_playlist_tracks(playlists):
     """
@@ -28,10 +30,13 @@ def get_playlist_tracks(playlists):
     - track_ids (arr):
     - track_names (arr): 
     """
-    print("first playlist: ", playlists[0])
-    print()
-    print("first playlists tracks:", playlists[0]['playlist_tracks'])
-    print()
+    try:
+        print("first playlist: ", playlists[0])
+        print()
+        print("first playlists tracks:", playlists[0]['playlist_tracks'])
+        print()
+    except:
+        print("Can't encode output")
     # tracks = playlist[0]['playlist_tracks'][:5] # Change this to each i
     track_ids = []
     track_names = []
@@ -101,11 +106,16 @@ def your_playlist():
     session['selected_playlists'] = selected_playlists
     print(selected_playlists)
     # selected_playlists = json.loads(f"[{request.form.get('fine-tune-values')}]")
+
+    # Testing Firestore access:
+    # collection = 'playlists_good'
+    # print('testing firebase')
+    # print(get_playlists(collection))
     if request.method == 'POST':
 
-        params = {
-            'seed_tracks': session['selected_tracks'], 'limit': 5,
-        }
+        # params = {
+        #     'seed_tracks': session['selected_tracks'], 'limit': 5,
+        # }
 
         ##########################
         # Model
@@ -121,21 +131,53 @@ def your_playlist():
             authorization_header, user_id)
         # playlist_data = session["playlist_data"]
 
-        # playlist_of_interest_name = '37i9dQZF1EJA7w0BQy8j5B'
-        playlist_of_interest_name = session['selected_playlists']
+        # playlists_of_interest_name = '37i9dQZF1EJA7w0BQy8j5B'
+        playlists_of_interest_name = session['selected_playlists']
 
-        playlist_of_interest = []
+        playlists_of_interest = []
 
         playlists_of_no_interest = []
         # Playlists are in the format described in spotify_handler
         for playlist in playlist_data:
-            if playlist['playlist_id'] in playlist_of_interest_name: # If in playlist in list of selected, add to selected (interest), otherwise add to not interest
-                playlist_of_interest.append(playlist)
+            if playlist['playlist_id'] in playlists_of_interest_name: # If in playlist in list of selected, add to selected (interest), otherwise add to not interest
+                playlists_of_interest.append(playlist)
             else:
                 playlists_of_no_interest.append(playlist)
-        print("\n +ve playlists: ", len(playlist_of_interest))
+        print("\n +ve playlists: ", len(playlists_of_interest))
         good_track_ids, good_track_names = get_playlist_tracks(
-            playlist_of_interest)
+            playlists_of_interest)
+
+
+
+
+        ##########################################################################
+        #FIRESTORE TEST:
+        #WRITE/add playlists 
+        auth = os.environ['AUTH_PATH']
+        try: # Clearing just for demo. Should only clear to reset all stored data
+            clear_collection('playlists_of_interest',auth=auth)
+            clear_collection('playlists_of_no_interest',auth=auth)
+        except:
+            print("collections don't exist")
+        add_playlists(playlists_of_interest,'playlists_of_interest',auth=auth)
+        add_playlists(playlists_of_no_interest,'playlists_of_no_interest',auth=auth)
+
+
+        #READ in whatever is stored. In this case, becaues we cleared it at step1, it's just what we wrote
+        playlists_of_interest = get_playlists('playlists_of_interest')
+        playlists_of_no_interest = get_playlists('playlists_of_no_interest')
+
+        #If there are no errors, this block runs correctly
+
+        # READ in data from our 100k collection example:
+        try:
+            dummy_data = load_reference_data(collection='bigdata2',num_tracks=1000) # We just load it in for demo, not using it
+        except:
+            print("failed to load reference data")
+        ###############################################################################
+
+
+        
 
         bad_track_ids = []
         bad_track_names = []
@@ -284,7 +326,10 @@ def your_playlist():
         # session['tracks_uri'] = tracks_uri
         # return render_template('result.html', data=rec_tracks)
 
-        print("rec keys:", final_tracks.keys)
+        try:
+            print("rec keys:", final_tracks.keys)
+        except:
+            print("rec keys failed to display, this is a encoding error")
         
         
 
