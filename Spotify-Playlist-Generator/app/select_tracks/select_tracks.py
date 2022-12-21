@@ -20,6 +20,7 @@ def select_tracks():
 
         # -------- Get user playlist data --------
         playlist_data = spotify_handler.get_user_playlist_data(authorization_header, user_id)
+        session["playlist_data"] = playlist_data
 
         return render_template('select_tracks.html',
                                user_display_name=user_display_name,

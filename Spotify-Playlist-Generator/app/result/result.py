@@ -21,7 +21,13 @@ from sklearn.tree import plot_tree, DecisionTreeClassifier
 
 
 def get_playlist_tracks(playlist):
-    tracks = playlist['playlist_tracks'][:5]
+    # print("all playlists: ", playlist)
+    # print()
+    print("first playlist: ", playlist[0])
+    print()
+    print("first playlists tracks:", playlist[0]['playlist_tracks'])
+    print()
+    tracks = playlist[0]['playlist_tracks'][:5]
     track_ids = []
     track_names = []
 
@@ -59,6 +65,10 @@ def your_playlist():
     #fine_tune_vals = json.loads(f"[{request.form.get('fine-tune-values')}]")
     #fine_tune_vals = [{val['key']: val['val'] for val in fine_tune_vals}][0]
     #print(fine_tune_vals)
+    selected_playlists = request.form.get('selected_tracks').split(',')
+    session['selected_playlists'] = selected_playlists
+    print(selected_playlists)
+    # selected_playlists = json.loads(f"[{request.form.get('fine-tune-values')}]")
     if request.method == 'POST':
 
         params = {
@@ -67,7 +77,7 @@ def your_playlist():
 
         ##########################
         # Model
-
+# ````````print(params['seed_tracks'])
         # -------- Get user's name, id, and set session --------
         profile_data = spotify_handler.get_user_profile_data(
             authorization_header)
@@ -77,36 +87,41 @@ def your_playlist():
         # -------- Get user playlist data --------
         playlist_data = spotify_handler.get_user_playlist_data(
             authorization_header, user_id)
+        # playlist_data = session["playlist_data"]
 
-        playlist_of_interest_name = session['selected_tracks'][0]
+        # playlist_of_interest_name = '37i9dQZF1EJA7w0BQy8j5B'
+        playlist_of_interest_name = session['selected_playlists']
+
+        playlist_of_interest = []
 
         playlists_of_no_interest = []
         for playlist in playlist_data:
-            if playlist['playlist_id'] == playlist_of_interest_name:
-                playlist_of_interest = playlist
+            if playlist['playlist_id'] in playlist_of_interest_name:
+                playlist_of_interest.append(playlist)
             else:
                 playlists_of_no_interest.append(playlist)
-
+        
+        print("\n +ve playlists: ", len(playlist_of_interest))
         good_track_ids, good_track_names = get_playlist_tracks(
             playlist_of_interest)
 
         bad_track_ids = []
         bad_track_names = []
+        print("\n -ve playlists: ", len(playlists_of_no_interest))
+        print("\n", playlists_of_no_interest)
 
-        for playlist in playlists_of_no_interest:
-            tmp_ids, tmp_names = get_playlist_tracks(playlist)
-
-            for tmp_id, tmp_name in zip(tmp_ids, tmp_names):
-                if tmp_id not in good_track_ids and tmp_id not in bad_track_ids:
-                    bad_track_ids.append(tmp_id)
-                    bad_track_names.append(tmp_name)
+        tmp_ids, tmp_names = get_playlist_tracks(playlists_of_no_interest)
+        for tmp_id, tmp_name in zip(tmp_ids, tmp_names):
+            if tmp_id not in good_track_ids and tmp_id not in bad_track_ids:
+                bad_track_ids.append(tmp_id)
+                bad_track_names.append(tmp_name)
 
         ratings = [1] * len(good_track_ids) + [0] * len(bad_track_ids)
         track_ids = good_track_ids + bad_track_ids
         track_names = good_track_names + bad_track_names
 
-        print("Audio features not found")
-        print("\tCalculating ...")
+        # print("\tAudio features not found")
+        print("\nCalculating ...")
         features = get_features(track_ids)
         favorites_df = pd.DataFrame(features, index=track_names)
         favorites_df['rating'] = ratings
@@ -214,11 +229,11 @@ def your_playlist():
 
         final_tracks = rec_playlist_df[y_pred_final.astype(bool)]
 
-        #final_tracks_list = final_tracks.values.tolist()
-        #final_tracks_list = testing_df.tolist()
+        final_tracks_list = final_tracks.values.tolist()
+        # final_tracks_list = testing_df.tolist()
 
-        #print(testing_df)
-        #print(testing_df['uri'])
+        # print(testing_df)
+        # print(testing_df['uri'])
 
         '''
 
@@ -232,13 +247,17 @@ def your_playlist():
         '''
 
         print("END")
-        print(rec_playlist_df.keys)
-        tracks_uri = [track for track in rec_playlist_df['uri']]
-        session['tracks_uri'] = tracks_uri
+        # print("rec keys:", rec_playlist_df.keys)
+        # tracks_uri = [track for track in rec_playlist_df['uri']]
+        # session['tracks_uri'] = tracks_uri
+        # return render_template('result.html', data=rec_tracks)
 
+        print("rec keys:", final_tracks.keys)
+        tracks_uri = [track for track in final_tracks['uri']]
+        session['tracks_uri'] = tracks_uri
         print(tracks_uri)
 
-        return render_template('result.html', data=rec_tracks)
+        return render_template('result.html', data=final_tracks_list)
 
         ###########################
 
@@ -287,68 +306,3 @@ def save_playlist():
         add_items_url, headers=authorization_header, data=tracks_data).text
 
     return render_template('listen.html', playlist_id=playlist_id)
-
-# import json
-# import requests
-# from flask import render_template, Blueprint, request, redirect, url_for, session
-
-# result_blueprint = Blueprint('result_bp', __name__, template_folder='templates')
-
-
-# @result_blueprint.route("/your-playlist", methods=['GET', 'POST'])
-# def your_playlist():
-#     authorization_header = session['authorization_header']
-#     fine_tune_vals = json.loads(f"[{request.form.get('fine-tune-values')}]")
-#     fine_tune_vals = [{val['key']: val['val'] for val in fine_tune_vals}][0]
-
-#     if request.method == 'POST':
-#         params = {
-#             'seed_tracks': session['selected_tracks'],
-#             'danceability': float(fine_tune_vals['danceability']) / 10,
-#             'energy': float(fine_tune_vals['energy']) / 10,
-#             'loudness': -60 + (float(fine_tune_vals['loudness']) - 1) * 60 / 9,
-#             'popularity': int(fine_tune_vals['popularity']) * 10
-#         }
-
-#         get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={25}"
-#         response = requests.get(get_reccomended_url,
-#                                 headers=authorization_header,
-#                                 params=params).text
-#         tracks = list(json.loads(response)['tracks'])
-#         tracks_uri = [track['uri'] for track in tracks]
-#         session['tracks_uri'] = tracks_uri
-
-#         return render_template('result.html', data=tracks)
-
-#     return redirect(url_for('not_found'))
-
-
-# @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
-# def save_playlist():
-#     authorization_header = session['authorization_header']
-#     user_id = session['user_id']
-
-#     playlist_name = request.form.get('playlist_name')
-#     playlist_data = json.dumps({
-#         "name": playlist_name,
-#         "description": "Recommended songs",
-#         "public": True
-#     })
-
-#     create_playlist_url = f"https://api.spotify.com/v1/users/{user_id}/playlists"
-
-#     response = requests.post(create_playlist_url,
-#                              headers=authorization_header,
-#                              data=playlist_data).text
-
-#     playlist_id = json.loads(response)['id']
-
-#     tracks_uri = session['tracks_uri']
-#     tracks_data = json.dumps({
-#         "uris": tracks_uri,
-#     })
-
-#     add_items_url = f"https://api.spotify.com/v1/playlists/{playlist_id}/tracks"
-#     response = requests.post(add_items_url, headers=authorization_header, data=tracks_data).text
-
-#     return render_template('listen.html', playlist_id=playlist_id)

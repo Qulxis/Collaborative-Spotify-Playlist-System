@@ -22,7 +22,7 @@ class SpotifyHandler:
         playlists = playlists['items']
 
         playlist_data = []
-        print("gettign user playlists and tracks")
+        print("getting user playlists and tracks")
         for playlist in playlists:
             print()
             print(playlist['name'])
