@@ -9,12 +9,41 @@
             </p>
 
             <p>
-                Here is a list of your playlists on Spotify.<br>Click on a playlist to expand it and select the tracks
-                you want to base your
-                recommendation on
+                You may either select tracks to add to our playlist dataset, <br>
+                clear our playlist dataset, <br>
+                or generate a brand new playlist based on what is available <br>
             </p>
         </div>
 
+        <div class="text-center next-btn-div">
+            <form action="/" method="POST">
+                <input type="hidden" id="clear" name="clear_playlists_button" value="">
+                <a>
+                    <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit">
+                        Clear Dataset
+                    </button>
+                </a>
+            </form>
+        </div>
+
+        <div class="text-center next-btn-div">
+            <form action="/" method="POST">
+                <input type="hidden" id="generate" name="generate_playlists_button" value="">
+                <a>
+                    <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit">
+                        Generate Playlist
+                    </button>
+                </a>
+            </form>
+        </div>
+
+        <div class=" container text-center hi">
+            <p>
+                Here is a list of your playlists on Spotify.<br>
+                Click on a playlist to expand it and select the tracks <br>
+                you want to base your recommendation on
+            </p>
+        </div>
 
         <!-- <ul class="list-group">
             {% for playlist in playlists_data %}
@@ -68,18 +97,13 @@
             {% endfor %}
         </ul>
 
-
-        <script>
-            console.log("HEY")
-        </script>
-
         <div class="text-center next-btn-div">
-            <form action="/your-playlist" method="POST" onsubmit="return validateSelectTracks();">
-                <input type="hidden" id="selected_tracks" name="selected_tracks" value="">
+            <form action="/route_to_dataset_loading" method="POST" onsubmit="return validateSelectTracks();">
+                <input type="hidden" id="selected_playlists" name="selected_playlists" value="">
                 <a>
                     <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit"
                             onclick="getTracks()">
-                        Next
+                        Add to Dataset
                     </button>
                 </a>
             </form>

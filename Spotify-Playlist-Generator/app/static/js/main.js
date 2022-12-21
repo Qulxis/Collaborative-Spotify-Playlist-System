@@ -35,7 +35,7 @@ function getSelectedTracks() {
 }
 
 function getTracks() {
-    let val_tag = document.getElementById('selected_tracks');
+    let val_tag = document.getElementById('selected_playlists');
     val_tag.value = getSelectedTracks();
 }
 

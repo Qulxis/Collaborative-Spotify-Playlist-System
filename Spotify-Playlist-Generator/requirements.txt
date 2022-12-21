@@ -22,3 +22,4 @@ Werkzeu==2.2.2
 yapf==0.30.0
 gunicorn
 python-dotenv
+firebase-admin

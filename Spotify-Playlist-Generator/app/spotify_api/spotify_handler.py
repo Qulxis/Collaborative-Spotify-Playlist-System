@@ -24,7 +24,7 @@ class SpotifyHandler:
         playlist_data = []
         print("getting user playlists and tracks")
         for playlist in playlists:
-            print()
+            # print()
             # print(playlist['name'])
             playlist_data.append({
                 'playlist_name': playlist['name'],

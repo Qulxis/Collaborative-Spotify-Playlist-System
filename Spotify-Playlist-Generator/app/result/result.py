@@ -21,6 +21,10 @@ from sklearn.tree import plot_tree, DecisionTreeClassifier
 
 from app.backend.backend import *
 
+result_blueprint = Blueprint(
+    'result_bp', __name__, template_folder='templates')
+spotify_handler = SpotifyHandler()
+
 ## Edit this to do all playlists
 def get_playlist_tracks(playlists):
     """
@@ -86,31 +90,24 @@ def get_info(track_ids): #Formats
     return features
 
 
-    
-
-
-
-
-result_blueprint = Blueprint(
-    'result_bp', __name__, template_folder='templates')
-spotify_handler = SpotifyHandler()
-
-
-@result_blueprint.route("/your-playlist", methods=['GET', 'POST'])
-def your_playlist():
-    authorization_header = session['authorization_header']
-    #fine_tune_vals = json.loads(f"[{request.form.get('fine-tune-values')}]")
-    #fine_tune_vals = [{val['key']: val['val'] for val in fine_tune_vals}][0]
-    #print(fine_tune_vals)
-    selected_playlists = request.form.get('selected_tracks').split(',') # Returns playlist ids (array)
+@result_blueprint.route("/route_to_dataset_loading", methods=['GET', 'POST'])
+def callback():
+    """
+    when adding datasets is intitiated first start up the loading page
+    the page will call
+    """
+    selected_playlists = request.form.get('selected_playlists').split(
+        ',')  # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
-    print(selected_playlists)
-    # selected_playlists = json.loads(f"[{request.form.get('fine-tune-values')}]")
+    # print(selected_playlists)
+    return redirect(url_for("loading_dataset_bp.loading"))
 
-    # Testing Firestore access:
-    # collection = 'playlists_good'
-    # print('testing firebase')
-    # print(get_playlists(collection))
+@result_blueprint.route("/add_selected_to_dataset", methods=['GET', 'POST'])
+def add_to_dataset():
+    authorization_header = session['authorization_header']
+    selected_playlists = session['selected_playlists']
+    print(selected_playlists)
+
     if request.method == 'POST':
 
         # params = {
@@ -119,9 +116,9 @@ def your_playlist():
 
         ##########################
         # Model
-# ````````print(params['seed_tracks'])
+        # ````````print(params['seed_tracks'])
         # -------- Get user's name, id, and set session --------
-        profile_data = spotify_handler.get_user_profile_data( #gets profile data, old code
+        profile_data = spotify_handler.get_user_profile_data(  # gets profile data, old code
             authorization_header)
         user_display_name, user_id = profile_data['display_name'], profile_data['id']
         session['user_id'], session['user_display_name'] = user_id, user_display_name
@@ -139,46 +136,50 @@ def your_playlist():
         playlists_of_no_interest = []
         # Playlists are in the format described in spotify_handler
         for playlist in playlist_data:
-            if playlist['playlist_id'] in playlists_of_interest_name: # If in playlist in list of selected, add to selected (interest), otherwise add to not interest
+            # If in playlist in list of selected, add to selected (interest), otherwise add to not interest
+            if playlist['playlist_id'] in playlists_of_interest_name:
                 playlists_of_interest.append(playlist)
             else:
                 playlists_of_no_interest.append(playlist)
-        print("\n +ve playlists: ", len(playlists_of_interest))
-        good_track_ids, good_track_names = get_playlist_tracks(
-            playlists_of_interest)
-
-
-
-
+        
         ##########################################################################
         #FIRESTORE TEST:
-        #WRITE/add playlists 
+        #WRITE/add playlists
         auth = os.environ['AUTH_PATH']
-        try: # Clearing just for demo. Should only clear to reset all stored data
-            clear_collection('playlists_of_interest',auth=auth)
-            clear_collection('playlists_of_no_interest',auth=auth)
-        except:
-            print("collections don't exist")
-        add_playlists(playlists_of_interest,'playlists_of_interest',auth=auth)
-        add_playlists(playlists_of_no_interest,'playlists_of_no_interest',auth=auth)
-
-
-        #READ in whatever is stored. In this case, becaues we cleared it at step1, it's just what we wrote
-        playlists_of_interest = get_playlists('playlists_of_interest')
-        playlists_of_no_interest = get_playlists('playlists_of_no_interest')
+        # try:  # Clearing just for demo. Should only clear to reset all stored data
+        #     clear_collection('playlists_of_interest', auth=auth)
+        #     clear_collection('playlists_of_no_interest', auth=auth)
+        # except:
+        #     print("collections don't exist")
+        add_playlists(playlists_of_interest,'playlists_of_interest', auth=auth)
+        add_playlists(playlists_of_no_interest, 'playlists_of_no_interest', auth=auth)
 
         #If there are no errors, this block runs correctly
 
         # READ in data from our 100k collection example:
         try:
-            dummy_data = load_reference_data(collection='bigdata2',num_tracks=1000) # We just load it in for demo, not using it
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
         except:
             print("failed to load reference data")
+        return redirect(url_for("loading_dataset_bp.loading"))
         ###############################################################################
+    
+    return redirect(url_for('not_found'))
 
+@result_blueprint.route("/your-playlist", methods=['GET', 'POST'])
+def your_playlist():
+    authorization_header = session['authorization_header']
+    if request.method == 'POST':
+        #READ in whatever is stored. In this case, becaues we cleared it at step1, it's just what we wrote
+        playlists_of_interest = get_playlists('playlists_of_interest')
+        playlists_of_no_interest = get_playlists('playlists_of_no_interest')
 
-        
-
+        print("\n +ve playlists: ", len(playlists_of_interest))
+        good_track_ids, good_track_names = get_playlist_tracks(
+            playlists_of_interest)
+            
         bad_track_ids = []
         bad_track_names = []
         print("\n -ve playlists: ", len(playlists_of_no_interest))

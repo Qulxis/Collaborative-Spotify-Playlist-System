@@ -1,5 +1,5 @@
 .btn:not(:disabled):not(.disabled) {
-    background: rgb(183, 104, 83);
+    background: rgb(192, 88, 59);
     border-style: none;
     box-shadow: none;
     /*height: 100%;*/
@@ -205,7 +205,7 @@ h1 {
 
 
 .next-btn {
-    width: 84px;
+    width: 200px;
 }
 
 .next-btn-div {

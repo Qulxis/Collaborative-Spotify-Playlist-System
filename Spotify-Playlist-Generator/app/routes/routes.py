@@ -18,4 +18,5 @@ def listen():
 
 @blueprint.route("/refresh", methods=['GET', 'POST'])
 def refresh_result():
-    return redirect(url_for("app.your_playlist"))
+    # return redirect(url_for("app.your_playlist"))
+    return redirect(url_for("result_bp.select_tracks.html"))
