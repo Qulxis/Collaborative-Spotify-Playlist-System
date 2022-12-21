@@ -85,6 +85,7 @@ def get_playlists(collection,auth=default_auth_path):
 
 def get_track_ids(playlists):
     """
+    Use function get_playlist_tracks in result.py
     Inputs:
     - playlists (arr): output from get_playlists
     Outputs:

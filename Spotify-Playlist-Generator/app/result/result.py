@@ -19,21 +19,26 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import plot_tree, DecisionTreeClassifier
 
-
-def get_playlist_tracks(playlist):
-    # print("all playlists: ", playlist)
-    # print()
-    print("first playlist: ", playlist[0])
+## Edit this to do all playlists
+def get_playlist_tracks(playlists):
+    """
+    Inputs: 
+    - playlist (arr): elements are dictionary format of playlist
+    Ouputs:
+    - track_ids (arr):
+    - track_names (arr): 
+    """
+    print("first playlist: ", playlists[0])
     print()
-    print("first playlists tracks:", playlist[0]['playlist_tracks'])
+    print("first playlists tracks:", playlists[0]['playlist_tracks'])
     print()
-    tracks = playlist[0]['playlist_tracks'][:5]
+    # tracks = playlist[0]['playlist_tracks'][:5] # Change this to each i
     track_ids = []
     track_names = []
-
-    for track in tracks:
-        track_ids.append(track['track_id'])
-        track_names.append(track['track_name'])
+    for playlist in [playlists[0]]: # change to playlist in playlists later for fullset
+        for track in playlist['playlist_tracks'][:5]:
+            track_ids.append(track['track_id'])
+            track_names.append(track['track_name'])
 
     return track_ids, track_names
 
@@ -65,21 +70,21 @@ def your_playlist():
     #fine_tune_vals = json.loads(f"[{request.form.get('fine-tune-values')}]")
     #fine_tune_vals = [{val['key']: val['val'] for val in fine_tune_vals}][0]
     #print(fine_tune_vals)
-    selected_playlists = request.form.get('selected_tracks').split(',')
+    selected_playlists = request.form.get('selected_playlists').split(',') # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
     print(selected_playlists)
     # selected_playlists = json.loads(f"[{request.form.get('fine-tune-values')}]")
     if request.method == 'POST':
 
         params = {
-            'seed_tracks': session['selected_tracks'], 'limit': 5,
+            'seed_tracks': session['selected_playlists'], 'limit': 5,
         }
 
         ##########################
         # Model
 # ````````print(params['seed_tracks'])
         # -------- Get user's name, id, and set session --------
-        profile_data = spotify_handler.get_user_profile_data(
+        profile_data = spotify_handler.get_user_profile_data( #gets profile data, old code
             authorization_header)
         user_display_name, user_id = profile_data['display_name'], profile_data['id']
         session['user_id'], session['user_display_name'] = user_id, user_display_name
@@ -95,12 +100,12 @@ def your_playlist():
         playlist_of_interest = []
 
         playlists_of_no_interest = []
+        # Playlists are in the format described in spotify_handler
         for playlist in playlist_data:
-            if playlist['playlist_id'] in playlist_of_interest_name:
+            if playlist['playlist_id'] in playlist_of_interest_name: # If in playlist in list of selected, add to selected (interest), otherwise add to not interest
                 playlist_of_interest.append(playlist)
             else:
                 playlists_of_no_interest.append(playlist)
-        
         print("\n +ve playlists: ", len(playlist_of_interest))
         good_track_ids, good_track_names = get_playlist_tracks(
             playlist_of_interest)
@@ -108,7 +113,7 @@ def your_playlist():
         bad_track_ids = []
         bad_track_names = []
         print("\n -ve playlists: ", len(playlists_of_no_interest))
-        print("\n", playlists_of_no_interest)
+        # print("\n", playlists_of_no_interest)
 
         tmp_ids, tmp_names = get_playlist_tracks(playlists_of_no_interest)
         for tmp_id, tmp_name in zip(tmp_ids, tmp_names):
@@ -119,7 +124,7 @@ def your_playlist():
         ratings = [1] * len(good_track_ids) + [0] * len(bad_track_ids)
         track_ids = good_track_ids + bad_track_ids
         track_names = good_track_names + bad_track_names
-
+        # THIS IS ALL WORKING, IS MODEL STUFF ##############################################
         # print("\tAudio features not found")
         print("\nCalculating ...")
         features = get_features(track_ids)
@@ -257,7 +262,7 @@ def your_playlist():
         session['tracks_uri'] = tracks_uri
         print(tracks_uri)
 
-        return render_template('result.html', data=final_tracks_list)
+        return render_template('listen.html', data=final_tracks_list) #changed from results.html -Andrew + Kenneth
 
         ###########################
 
