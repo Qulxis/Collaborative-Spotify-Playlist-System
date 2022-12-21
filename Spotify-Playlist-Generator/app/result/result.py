@@ -58,6 +58,33 @@ def get_features(track_ids):
             print("Error track")
     return features
 
+def get_info(track_ids): #Formats
+    """
+    Gives the track info as expected in result.html
+    Input 
+    - track_ids (list): elements are track ids
+    Ouput:
+    - features (arr): element is a track dictionary from spotify api: https://developer.spotify.com/console/get-track/
+    """
+    features = []
+
+    for track_id in track_ids:
+
+        try:
+            track_endpoint = f"	https://api.spotify.com/v1/tracks/{track_id}"
+            track_features = json.loads(requests.get(
+                track_endpoint, headers=session['authorization_header']).text)
+
+            features.append(track_features)
+        except:
+            print("Error track")
+    return features
+
+
+    
+
+
+
 
 result_blueprint = Blueprint(
     'result_bp', __name__, template_folder='templates')
@@ -234,7 +261,7 @@ def your_playlist():
 
         final_tracks = rec_playlist_df[y_pred_final.astype(bool)]
         print(final_tracks.columns)
-        final_tracks_list = final_tracks.values.tolist()
+        final_tracks_list = final_tracks.values.tolist() # original into to render_template
         # final_tracks_list = testing_df.tolist()
 
         # print(testing_df)
@@ -258,11 +285,16 @@ def your_playlist():
         # return render_template('result.html', data=rec_tracks)
 
         print("rec keys:", final_tracks.keys)
+        
+        
+
         tracks_uri = [track for track in final_tracks['uri']]
         session['tracks_uri'] = tracks_uri
         print(tracks_uri)
 
-        return render_template('result.html', data=final_tracks_list) #changed from results.html -Andrew + Kenneth
+
+        data = get_info(track_ids = final_tracks['id'].values.tolist()) # Get track formated data
+        return render_template('result.html', data=data) #changed from results.html -Andrew + Kenneth
 
         ###########################
 
@@ -279,6 +311,10 @@ def your_playlist():
         '''
 
     return redirect(url_for('not_found'))
+
+
+
+    
 
 
 @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
