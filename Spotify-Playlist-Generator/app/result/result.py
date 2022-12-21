@@ -70,14 +70,14 @@ def your_playlist():
     #fine_tune_vals = json.loads(f"[{request.form.get('fine-tune-values')}]")
     #fine_tune_vals = [{val['key']: val['val'] for val in fine_tune_vals}][0]
     #print(fine_tune_vals)
-    selected_playlists = request.form.get('selected_playlists').split(',') # Returns playlist ids (array)
+    selected_playlists = request.form.get('selected_tracks').split(',') # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
     print(selected_playlists)
     # selected_playlists = json.loads(f"[{request.form.get('fine-tune-values')}]")
     if request.method == 'POST':
 
         params = {
-            'seed_tracks': session['selected_playlists'], 'limit': 5,
+            'seed_tracks': session['selected_tracks'], 'limit': 5,
         }
 
         ##########################
@@ -233,7 +233,7 @@ def your_playlist():
         print(y_pred_final)
 
         final_tracks = rec_playlist_df[y_pred_final.astype(bool)]
-
+        print(final_tracks.columns)
         final_tracks_list = final_tracks.values.tolist()
         # final_tracks_list = testing_df.tolist()
 
@@ -262,7 +262,7 @@ def your_playlist():
         session['tracks_uri'] = tracks_uri
         print(tracks_uri)
 
-        return render_template('listen.html', data=final_tracks_list) #changed from results.html -Andrew + Kenneth
+        return render_template('result.html', data=final_tracks_list) #changed from results.html -Andrew + Kenneth
 
         ###########################
 
