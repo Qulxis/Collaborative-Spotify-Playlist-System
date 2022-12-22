@@ -59,18 +59,12 @@ def get_playlist_tracks(playlists):
     track_ids = []
     track_names = []
     try:
-        print("first playlist: ", playlists[0])
-        print()
-        print("first playlists tracks:", playlists[0]['playlist_tracks'])
-        print()
-    except:
-        print("Can't encode output")
-    else:
-        # tracks = playlist[0]['playlist_tracks'][:5] # Change this to each i
         for playlist in [playlists[0]]: # change to playlist in playlists later for fullset
             for track in playlist['playlist_tracks'][5:]:
                 track_ids.append(track['track_id'])
-                track_names.append(track['track_name'])
+                track_names.append(track['track_name'].encode(encoding='UTF-8',errors='strict'))
+    except:
+        print("Can't encode output")
 
     return track_ids, track_names
 
@@ -220,20 +214,23 @@ def add_to_dataset():
 @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
     authorization_header = session['authorization_header']
+    auth = os.environ['AUTH_PATH']
     if request.method == 'POST':
         #READ in whatever is stored. In this case, becaues we cleared it at step1, it's just what we wrote
-        playlists_of_interest = get_playlists('playlists_of_interest')
-        playlists_of_no_interest = get_playlists('playlists_of_no_interest')
+        playlists_of_interest = get_playlists('playlists_of_interest',auth=auth)
+        playlists_of_no_interest = get_playlists('playlists_of_no_interest',auth=auth)
 
         print("\n +ve playlists: ", len(playlists_of_interest))
-        good_track_ids, good_track_names = get_playlist_tracks(
-            playlists_of_interest)
+        good_track_ids, good_track_names = get_playlist_tracks(playlists_of_interest)
+        print("good tracks",good_track_ids)
             
         bad_track_ids = []
         bad_track_names = []
         print("\n -ve playlists: ", len(playlists_of_no_interest))
 
         tmp_ids, tmp_names = get_playlist_tracks(playlists_of_no_interest)
+        print("bad tracks", tmp_ids)
+
         for tmp_id, tmp_name in zip(tmp_ids, tmp_names):
             if tmp_id not in good_track_ids and tmp_id not in bad_track_ids:
                 bad_track_ids.append(tmp_id)
@@ -242,15 +239,16 @@ def your_playlist():
         ratings = [1] * len(good_track_ids) + [0] * len(bad_track_ids)
         track_ids = good_track_ids + bad_track_ids
         track_names = good_track_names + bad_track_names
+        print("track ids", track_ids)
 
         print("\nCalculating ...")
         features = get_features(track_ids)
         favorites_df = pd.DataFrame(features, index=track_names)
         favorites_df['rating'] = ratings
         favorites_df.to_csv('track_features.csv')
+        print("column names", favorites_df.columns)
 
-        training_df = favorites_df[["acousticness", "danceability", "duration_ms", "energy", "instrumentalness",
-                                    "key", "liveness", "loudness", "mode", "speechiness", "tempo", "valence", "rating"]]
+        training_df = favorites_df[["acousticness", "danceability", "duration_ms", "energy", "instrumentalness", "liveness", "loudness", "speechiness", "tempo", "valence", "rating"]] #REMOVE MODE AND KEY
 
         print(training_df)
 
@@ -293,77 +291,88 @@ def your_playlist():
         print("Best score: ", forest_grid.best_score_)
 
         #Test
+        #############################################################
+        # # Using Recommendation system
 
-        rec_tracks_per_track = 2
-        max_rec_tracks = 2000
-        rec_tracks_per_track = min([max_rec_tracks, len(
-            favorites_df['id']) * rec_tracks_per_track]) // len(favorites_df['id'])
-        print(f"Using {rec_tracks_per_track} test tracks per track")
+        # rec_tracks_per_track = 2
+        # max_rec_tracks = 2000
+        # rec_tracks_per_track = min([max_rec_tracks, len(
+        #     favorites_df['id']) * rec_tracks_per_track]) // len(favorites_df['id'])
+        # print(f"Using {rec_tracks_per_track} test tracks per track")
 
-        print("1111")
-        try:
-            print("AAAA")
-            get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={100}"
-            response = requests.get(get_reccomended_url,
-                                    headers=authorization_header,
-                                    params={'seed_tracks': good_track_ids}).text
-            rec_tracks = json.loads(response)['tracks']
-        except:
-            print("error recommandation")
-
-        rec_track_ids = []
-        rec_track_names = []
-        for i in rec_tracks:
-            rec_track_ids.append(i['id'])
-            rec_track_names.append(i['name'])
-
-        rec_features = get_features(rec_track_ids)
-
-        rec_playlist_df = pd.DataFrame(rec_features, index=rec_track_names)
-        rec_playlist_df.drop_duplicates(subset='id', inplace=True)
-        rec_track_names = rec_playlist_df.index.tolist()
-        # # READ in data from our 100k collection example:
+        # print("1111")
         # try:
-        #     # We just load it in for demo, not using it
-        #     dummy_data = load_reference_data(
-        #         collection='bigdata2', num_tracks=1000)
-        #     rec_playlist_df = pd.DataFrame(dummy_data, index=False)
-        #     rec_playlist_df = rec_playlist_df.rename(
-        #         columns={'durationMs': 'duration_ms'})
-        #     print(rec_playlist_df.head())
-        #     print(rec_playlist_df.columns)
+        #     print("AAAA")
+        #     get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={100}"
+        #     response = requests.get(get_reccomended_url,
+        #                             headers=authorization_header,
+        #                             params={'seed_tracks': good_track_ids}).text
+        #     rec_tracks = json.loads(response)['tracks']
         # except:
-        #     print("failed to load reference data")
-        # else:
-        #     # We just load it in for demo, not using it
-        #     dummy_data = load_reference_data(
-        #         collection='bigdata2', num_tracks=1000)
-        #     rec_playlist_df = pd.DataFrame(dummy_data, index=False)
-        #     rec_playlist_df = rec_playlist_df.rename(
-        #         columns={'durationMs': 'duration_ms'})
-        #     print(rec_playlist_df.head())
-        #     print(rec_playlist_df.columns)
+        #     print("error recommandation")
+
+        # rec_track_ids = []
+        # rec_track_names = []
+        # for i in rec_tracks:
+        #     rec_track_ids.append(i['id'])
+        #     rec_track_names.append(i['name'])
+
+        # rec_features = get_features(rec_track_ids)
+
+        # rec_playlist_df = pd.DataFrame(rec_features, index=rec_track_names)
+        # rec_playlist_df.drop_duplicates(subset='id', inplace=True)
+        # rec_track_names = rec_playlist_df.index.tolist()
+        ####################################################################
+        # Using 100k
+        # ###############################################################################
+        try:
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(collection='bigdata2', num_tracks=1000)
+            print("Reference data loaded?", not not dummy_data)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            print("columns of rec:", rec_playlist_df.columns)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
+        except:
+            print("failed to load reference data")
+        else:
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
         # We just load it in for demo, not using it
-        # dummy_data = load_reference_data(
-        #     collection='bigdata2', num_tracks=1000)
-        # rec_playlist_df = pd.DataFrame(dummy_data)
-        # rec_playlist_df = rec_playlist_df.rename(
-        #     columns={'durationMs': 'duration_ms'})
-        # print(rec_playlist_df.head())
-        # print(rec_playlist_df.columns)
+        dummy_data = load_reference_data(
+            collection='bigdata2', num_tracks=1000)
+        rec_playlist_df = pd.DataFrame(dummy_data)
+        rec_playlist_df = rec_playlist_df.rename(
+            columns={'durationMs': 'duration_ms'})
+        print(rec_playlist_df.head())
+        print(rec_playlist_df.columns)
+        rec_playlist_df.drop_duplicates(subset='id', inplace=True) # remove duplicates
+        ###############################################################################################
+        
         testing_df = rec_playlist_df[
             [
                 "acousticness", "danceability", "duration_ms", "energy",
-                "instrumentalness",  "key", "liveness", "loudness", "mode",
+                "instrumentalness", "liveness", "loudness",
                 "speechiness", "tempo", "valence"
-            ]
+            ] #Removed key and mode
         ]
         # rec_track_names = rec_playlist_df.index.tolist()
-        print(testing_df)
+        print("testing_df",testing_df)
         print(testing_df.columns)
         testing_df_scaled = StandardScaler().fit_transform(testing_df)
+        testing_df.to_csv("testing_df.csv") 
 
         X_test = pca.transform(testing_df_scaled)
+        rec_track_names = rec_playlist_df["title"].values.tolist() # Get track names as a list
+        
         X_test_names = v.transform(rec_track_names)
 
         X_test = sparse.csr_matrix(sparse.hstack([X_test, X_test_names]))
@@ -403,8 +412,13 @@ def your_playlist():
         session['tracks_uri'] = tracks_uri
         print(tracks_uri)
 
+        track_ids = final_tracks['id'].values.tolist()
+        if len(track_ids) > 20:
+            track_ids = track_ids[0:20]
+            print("Too many songs selected by model, changign to top 20")
+            
+        data = get_info(track_ids = track_ids) # Get track formated data        
 
-        data = get_info(track_ids = final_tracks['id'].values.tolist()) # Get track formated data
         session['new_playlist'] = data
         return render_template('result.html', data=data) #changed from results.html -Andrew + Kenneth
 

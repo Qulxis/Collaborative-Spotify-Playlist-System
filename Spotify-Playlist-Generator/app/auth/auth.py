@@ -7,6 +7,12 @@ auth_blueprint = Blueprint('auth_bp', __name__)
 
 client_id = os.environ.get('CLIENT_ID')
 client_secret = os.environ.get('CLIENT_SECRET')
+###################
+#Check client ID and secret loaded:
+if not client_secret:
+    print("Client secret failed to fetch from .env")
+if not client_id:
+    print("Client id failed to fetch from .env")
 
 spotify_client = SpotifyClient(client_id, client_secret, port=8002)
 
