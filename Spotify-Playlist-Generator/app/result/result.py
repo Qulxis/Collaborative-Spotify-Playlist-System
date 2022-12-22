@@ -58,7 +58,7 @@ def get_playlist_tracks(playlists):
     """
     track_ids = []
     track_names = []
-    for playlist in playlists[0:2]: # change to playlist in playlists later for fullset
+    for playlist in playlists[:2]: # change to playlist in playlists later for fullset
             for track in playlist['playlist_tracks'][:5]:
                 try:
                     track_ids.append(track['track_id'])
