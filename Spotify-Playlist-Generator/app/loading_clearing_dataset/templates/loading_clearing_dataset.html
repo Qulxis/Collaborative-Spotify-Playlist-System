@@ -4,10 +4,14 @@
 
     <body class="text-break">
         <div class="container text-center hi wait-msg">
-            <p class="alert alert-info">Please wait, we are addding your playlists to our dataset</p>
+            <p class="alert alert-info">Please wait, we are clearing our dataset</p>
 
             <div class="container text-center hi loading-circle">
                 <div class="lds-ring">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
                 </div>
             </div>
         </div>
@@ -17,7 +21,7 @@
         <script type="text/javascript">
             $.ajax({
                 type: 'POST',
-                url: '/add_selected_to_dataset',
+                url: '/clear_dataset',
                 success: function () {
                     window.location.replace('/select_tracks');
                 }

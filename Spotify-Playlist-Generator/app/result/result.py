@@ -29,6 +29,25 @@ spotify_handler = SpotifyHandler()
 def extract_letters(string):
     return ''.join([letter for letter in string if not letter.isdigit()])
 
+def get_current_playlists():
+    authorization_header = session['authorization_header']
+    # -------- Get user's name, id, and set session --------
+    profile_data = spotify_handler.get_user_profile_data(
+        authorization_header)
+    user_display_name, user_id = profile_data['display_name'], profile_data['id']
+    session['user_id'], session['user_display_name'] = user_id, user_display_name
+
+    try:
+        print(session["playlist_data"]) 
+        playlist_data = session["playlist_data"]
+    except:
+        playlist_data = spotify_handler.get_user_playlist_data(
+            session['authorization_header'], session['user_id'])
+    else:
+        playlist_data = session["playlist_data"]
+    
+    return playlist_data
+
 ## Edit this to do all playlists
 def get_playlist_tracks(playlists):
     """
@@ -38,6 +57,8 @@ def get_playlist_tracks(playlists):
     - track_ids (arr):
     - track_names (arr): 
     """
+    track_ids = []
+    track_names = []
     try:
         print("first playlist: ", playlists[0])
         print()
@@ -45,13 +66,12 @@ def get_playlist_tracks(playlists):
         print()
     except:
         print("Can't encode output")
-    # tracks = playlist[0]['playlist_tracks'][:5] # Change this to each i
-    track_ids = []
-    track_names = []
-    for playlist in [playlists[0]]: # change to playlist in playlists later for fullset
-        for track in playlist['playlist_tracks'][:5]:
-            track_ids.append(track['track_id'])
-            track_names.append(track['track_name'])
+    else:
+        # tracks = playlist[0]['playlist_tracks'][:5] # Change this to each i
+        for playlist in [playlists[0]]: # change to playlist in playlists later for fullset
+            for track in playlist['playlist_tracks'][10:]:
+                track_ids.append(track['track_id'])
+                track_names.append(track['track_name'])
 
     return track_ids, track_names
 
@@ -96,31 +116,29 @@ def get_info(track_ids): #Formats
 
 @result_blueprint.route("/route_to_dataset_clearing", methods=['GET', 'POST'])
 def dataset_clearing_callback():
-    auth = os.environ['AUTH_PATH']
-    try:  # Clearing just for demo. Should only clear to reset all stored data
-        clear_collection('playlists_of_interest', auth=auth)
-        clear_collection('playlists_of_no_interest', auth=auth)
-        print("dataset cleared")
-    except:
-        print("collections don't exist")
+    return redirect(url_for("loading_clearing_dataset_bp.loading"))
 
-    authorization_header = session['authorization_header']
-    # -------- Get user's name, id, and set session --------
-    profile_data = spotify_handler.get_user_profile_data(
-        authorization_header)
-    user_display_name, user_id = profile_data['display_name'], profile_data['id']
-    session['user_id'], session['user_display_name'] = user_id, user_display_name
+@result_blueprint.route("/clear_dataset", methods=['GET', 'POST'])
+def clear_dataset():
+    if request.method == 'POST':
+        auth = os.environ['AUTH_PATH']
+        try:  # Clearing just for demo. Should only clear to reset all stored data
+            clear_collection('playlists_of_interest', auth=auth)
+            clear_collection('playlists_of_no_interest', auth=auth)
+            print("dataset cleared")
+        except:
+            print("collections don't exist")
 
-    # -------- Get user playlist data --------
-    playlist_data = spotify_handler.get_user_playlist_data(
-        authorization_header, user_id)
-    session["playlist_data"] = playlist_data
+        playlist_data = get_current_playlists()
+        user_name = session['user_display_name']
 
-    return render_template('select_tracks.html',
-                            user_display_name=user_display_name,
+        return render_template('select_tracks.html',
+                            user_display_name=user_name,
                             playlists_data=playlist_data,
                             func=extract_letters)
+        ###############################################################################
 
+    return redirect(url_for('not_found'))
 
 @result_blueprint.route("/route_to_adding_to_dataset_loading", methods=['GET', 'POST'])
 def dataset_addition_callback():
@@ -128,43 +146,21 @@ def dataset_addition_callback():
     when adding datasets is intitiated first start up the loading page
     the page will call
     """
-    selected_playlists = request.form.get('selected_playlists').split(
-        ',')  # Returns playlist ids (array)
+    selected_playlists = request.form.get('selected_playlists').split(',')  # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
-    # print(selected_playlists)
+
     return redirect(url_for("loading_adding_to_dataset_bp.loading"))
 
 @result_blueprint.route("/add_selected_to_dataset", methods=['GET', 'POST'])
 def add_to_dataset():
-    authorization_header = session['authorization_header']
     selected_playlists = session['selected_playlists']
     print(selected_playlists)
 
     if request.method == 'POST':
-
-        # params = {
-        #     'seed_tracks': session['selected_tracks'], 'limit': 5,
-        # }
-
-        ##########################
-        # Model
-        # ````````print(params['seed_tracks'])
-        # -------- Get user's name, id, and set session --------
-        profile_data = spotify_handler.get_user_profile_data(  # gets profile data, old code
-            authorization_header)
-        user_display_name, user_id = profile_data['display_name'], profile_data['id']
-        session['user_id'], session['user_display_name'] = user_id, user_display_name
-
-        # -------- Get user playlist data --------
-        playlist_data = spotify_handler.get_user_playlist_data(
-            authorization_header, user_id)
-        # playlist_data = session["playlist_data"]
-
-        # playlists_of_interest_name = '37i9dQZF1EJA7w0BQy8j5B'
+        playlist_data = get_current_playlists()
         playlists_of_interest_name = session['selected_playlists']
 
         playlists_of_interest = []
-
         playlists_of_no_interest = []
         # Playlists are in the format described in spotify_handler
         for playlist in playlist_data:
@@ -173,20 +169,15 @@ def add_to_dataset():
                 playlists_of_interest.append(playlist)
             else:
                 playlists_of_no_interest.append(playlist)
-        
+
         ##########################################################################
         #FIRESTORE TEST:
         #WRITE/add playlists
         auth = os.environ['AUTH_PATH']
-        # try:  # Clearing just for demo. Should only clear to reset all stored data
-        #     clear_collection('playlists_of_interest', auth=auth)
-        #     clear_collection('playlists_of_no_interest', auth=auth)
-        # except:
-        #     print("collections don't exist")
-        add_playlists(playlists_of_interest,'playlists_of_interest', auth=auth)
-        add_playlists(playlists_of_no_interest, 'playlists_of_no_interest', auth=auth)
-
-        #If there are no errors, this block runs correctly
+        add_playlists(playlists_of_interest,
+                      'playlists_of_interest', auth=auth)
+        add_playlists(playlists_of_no_interest,
+                      'playlists_of_no_interest', auth=auth)
 
         # READ in data from our 100k collection example:
         try:
@@ -197,7 +188,7 @@ def add_to_dataset():
             print("failed to load reference data")
         return redirect(url_for("loading_adding_to_dataset_bp.loading"))
         ###############################################################################
-    
+
     return redirect(url_for('not_found'))
 
 
@@ -216,7 +207,6 @@ def your_playlist():
         bad_track_ids = []
         bad_track_names = []
         print("\n -ve playlists: ", len(playlists_of_no_interest))
-        # print("\n", playlists_of_no_interest)
 
         tmp_ids, tmp_names = get_playlist_tracks(playlists_of_no_interest)
         for tmp_id, tmp_name in zip(tmp_ids, tmp_names):
@@ -227,8 +217,7 @@ def your_playlist():
         ratings = [1] * len(good_track_ids) + [0] * len(bad_track_ids)
         track_ids = good_track_ids + bad_track_ids
         track_names = good_track_names + bad_track_names
-        # THIS IS ALL WORKING, IS MODEL STUFF ##############################################
-        # print("\tAudio features not found")
+
         print("\nCalculating ...")
         features = get_features(track_ids)
         favorites_df = pd.DataFrame(features, index=track_names)
@@ -342,18 +331,6 @@ def your_playlist():
 
         # print(testing_df)
         # print(testing_df['uri'])
-
-        '''
-
-        Final version
-
-        print(rec_playlist_df.keys)
-        tracks_uri = [track for track in final_tracks['uri']]
-        session['tracks_uri'] = tracks_uri
-
-
-        '''
-
         print("END")
         # print("rec keys:", rec_playlist_df.keys)
         # tracks_uri = [track for track in rec_playlist_df['uri']]

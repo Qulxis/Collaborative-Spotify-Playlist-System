@@ -6,7 +6,6 @@ app = create_app()
 production = os.environ.get("PRODUCTION", False)
 
 if __name__ == '__main__':
-    # app.run()
     if production:
         app.run(debug=True)
     else:
