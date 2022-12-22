@@ -325,7 +325,7 @@ def your_playlist():
         # Using 100k
         # ###############################################################################
         try:
-            dummy_data = load_reference_data(collection='bigdata2', num_tracks=1000)
+            dummy_data = load_reference_data(collection='bigdata2', num_tracks=2000)
             print("Reference data loaded?", not not dummy_data)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
             print("columns of rec:", rec_playlist_df.columns)
