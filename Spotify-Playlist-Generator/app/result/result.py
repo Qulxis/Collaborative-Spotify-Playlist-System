@@ -322,36 +322,36 @@ def your_playlist():
         # rec_playlist_df = pd.DataFrame(rec_features, index=rec_track_names)
         # rec_playlist_df.drop_duplicates(subset='id', inplace=True)
         # rec_track_names = rec_playlist_df.index.tolist()
-        rec_playlist_df = pd.DataFrame()
+        # rec_playlist_df = pd.DataFrame()
         # # READ in data from our 100k collection example:
-        # try:
-        #     # We just load it in for demo, not using it
-        #     dummy_data = load_reference_data(
-        #         collection='bigdata2', num_tracks=1000)
-        #     rec_playlist_df = pd.DataFrame(dummy_data, index=False)
-        #     rec_playlist_df = rec_playlist_df.rename(
-        #         columns={'durationMs': 'duration_ms'})
-        #     print(rec_playlist_df.head())
-        #     print(rec_playlist_df.columns)
-        # except:
-        #     print("failed to load reference data")
-        # else:
-        #     # We just load it in for demo, not using it
-        #     dummy_data = load_reference_data(
-        #         collection='bigdata2', num_tracks=1000)
-        #     rec_playlist_df = pd.DataFrame(dummy_data, index=False)
-        #     rec_playlist_df = rec_playlist_df.rename(
-        #         columns={'durationMs': 'duration_ms'})
-        #     print(rec_playlist_df.head())
-        #     print(rec_playlist_df.columns)
+        try:
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
+        except:
+            print("failed to load reference data")
+        else:
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
         # We just load it in for demo, not using it
-        dummy_data = load_reference_data(
-            collection='bigdata2', num_tracks=1000)
-        rec_playlist_df = pd.DataFrame(dummy_data)
-        rec_playlist_df = rec_playlist_df.rename(
-            columns={'durationMs': 'duration_ms'})
-        print(rec_playlist_df.head())
-        print(rec_playlist_df.columns)
+        # dummy_data = load_reference_data(
+        #     collection='bigdata2', num_tracks=1000)
+        # rec_playlist_df = pd.DataFrame(dummy_data)
+        # rec_playlist_df = rec_playlist_df.rename(
+        #     columns={'durationMs': 'duration_ms'})
+        # print(rec_playlist_df.head())
+        # print(rec_playlist_df.columns)
         testing_df = rec_playlist_df[
             [
                 "acousticness", "danceability", "duration_ms", "energy",
