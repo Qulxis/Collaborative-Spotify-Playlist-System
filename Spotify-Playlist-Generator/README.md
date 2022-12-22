@@ -36,3 +36,8 @@ Create a virtual environment for the project and activate it:
 Install the required packages:
 
 `pip install -r requirements.txt`
+
+## Add Firestore Authentication and Update Paths:
+You must have access to a Firestore database collection and its authentication file. For more, see (https://firebase.google.com/docs/auth). Once you have the SDK-authentication file, perform the following steps to allow the project to use it:
+1. Upload the SDK authentication file to Spotify-Playlist-Generator/app/backend/auth/
+2. Copy the relative path starting from 'data/' a
