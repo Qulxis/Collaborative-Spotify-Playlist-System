@@ -51,16 +51,16 @@ Install the required packages:
 
 ### Add Firestore Authentication and Update Paths:
 You must have access to a Firestore database collection and its authentication file. For more and setting up a Firestore database on GCP, see (https://firebase.google.com/docs/auth). Once you have the SDK-authentication file, perform the following steps to allow the project to use it:
-1. Upload the SDK authentication file to Spotify-Playlist-Generator/app/backend/auth/
-2. Copy the relative path to that SDK file, 'app/backend/auth/YOUR_SDK_FILENAME_HERE.json', and then update the variable "AUTH_PATH" to this path as a string in Spotifpy-Playlist-Generator/.env. Do the same on line 7 in Spotify-Playlist-Generator/app/backend/backend.py.
+1. Upload the SDK authentication file to Spotify-Playlist-Generator/app/backend/auth/ . (Note if using the orignal SDK file, steps 2&3 are not required for Firestore setup).
+2. Copy the relative path to that SDK file, 'app/backend/auth/YOUR_SDK_FILENAME_HERE.json', and then update the variable "AUTH_PATH" to this path as a string in Spotifpy-Playlist-Generator/.env.
 3. Save all changes to files.
 
 ### Add Spotify Authentication:
 This project requires Spotify Developer Authentication.
 There are two options:
-1. Send us the usernames of the Spotify accounts that will be using this app (request for this information was sent to TAs).
+1. Send us the usernames (emails associated with the accounts) of the Spotify accounts that will be using this app to be added to the whitelist. (TA's for the class bigdata should have received an email regarding this and alternative options).
 OR 
-2. Setup a Spotify Developer Account and project (https://developer.spotify.com/dashboard), then update the CLIENT_ID and CLIENT_SECRET variables in Spotifpy-Playlist-Generator/.env accordingly.
+2. Setup a Spotify Developer Account and project (https://developer.spotify.com/dashboard) to add accounts, then update the CLIENT_ID and CLIENT_SECRET variables in Spotifpy-Playlist-Generator/.env accordingly.
 
 ### Run the app!
 1. Run the file "run.py" in the folder "Spotify-Playlist-Generator/".

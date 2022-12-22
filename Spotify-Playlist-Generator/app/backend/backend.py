@@ -5,7 +5,6 @@ import pandas as pd
 import os 
 
 default_auth_path = os.environ.get('AUTH_PATH')
-# "app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json" 
 
 def add_playlists(playlists,collection, auth=default_auth_path):
     """
