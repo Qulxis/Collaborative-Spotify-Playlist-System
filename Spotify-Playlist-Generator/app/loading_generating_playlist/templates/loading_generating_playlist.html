@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+
+    <body class="text-break">
+        <div class="container text-center hi wait-msg">
+            <p class="alert alert-info">Please wait, we are generating your brand new playlist</p>
+
+            <div class="container text-center hi loading-circle">
+                <div class="lds-ring">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+
+        <script type="text/javascript">
+            $.ajax({
+                type: 'POST',
+                url: '/playlist_generation',
+                success: function () {
+                    window.location.replace('/result');
+                }
+            });
+        </script>
+
+{% endblock %}

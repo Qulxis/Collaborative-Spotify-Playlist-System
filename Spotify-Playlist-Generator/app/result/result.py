@@ -144,7 +144,6 @@ def clear_dataset():
 def dataset_addition_callback():
     """
     when adding datasets is intitiated first start up the loading page
-    the page will call
     """
     selected_playlists = request.form.get('selected_playlists').split(',')  # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
@@ -174,6 +173,37 @@ def add_to_dataset():
         #FIRESTORE TEST:
         #WRITE/add playlists
         auth = os.environ['AUTH_PATH']
+        try:  # If playlist collections exist, get the data
+            final_playlists_of_interest = get_playlists(
+                'playlists_of_interest')
+            final_playlists_of_no_interest = get_playlists(
+                'playlists_of_no_interest')
+        except:  # Otherwise, set them to empty lists
+            final_playlists_of_interest = []
+            final_playlists_of_no_interest = []
+        # Give current user priority:
+        # If track is in old_interest, remove from interest and add to no_interest and vice versa
+        for playlist in playlists_of_interest:
+            if playlist in final_playlists_of_no_interest:  # playlists is in old no_interest, we must remove it
+                final_playlists_of_no_interest.remove(
+                    playlist)  # Remove from old set no_interest
+            if playlist not in final_playlists_of_interest:  # Check not in interest set
+                # Add to new set interest, overwriting previous
+                final_playlists_of_interest.append(playlist)
+        for playlist in playlists_of_no_interest:
+            if playlist in final_playlists_of_interest:  # playlists is in old interest.
+                final_playlists_of_interest.remove(
+                    playlist)  # Remove from old set interest
+            if playlist not in final_playlists_of_interest:
+                final_playlists_of_no_interest.append(playlist)
+        # Clear old database selections:
+        clear_collection('playlists_of_interest', auth=auth)
+        clear_collection('playlists_of_no_interest', auth=auth)
+
+        #write new sets:
+        playlists_of_interest = final_playlists_of_interest
+        playlists_of_no_interest = final_playlists_of_no_interest
+
         add_playlists(playlists_of_interest,
                       'playlists_of_interest', auth=auth)
         add_playlists(playlists_of_no_interest,
@@ -191,8 +221,11 @@ def add_to_dataset():
 
     return redirect(url_for('not_found'))
 
-
 @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
+def dataset_generation_callback():
+    return redirect(url_for("loading_generating_playlist_bp.loading"))
+
+@result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
     authorization_header = session['authorization_header']
     if request.method == 'POST':
@@ -368,6 +401,10 @@ def your_playlist():
 
     return redirect(url_for('not_found'))
 
+
+@result_blueprint.route("/result", methods=['GET', 'POST'])
+def result():
+    return render_template('result.html')
 
 @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
 def save_playlist():

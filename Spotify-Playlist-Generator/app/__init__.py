@@ -9,6 +9,7 @@ from app.home.home import home_blueprint
 from app.loading.loading import loading_blueprint
 from app.loading_adding_to_dataset.loading_adding_to_dataset import loading_adding_to_dataset_blueprint
 from app.loading_clearing_dataset.loading_clearing_dataset import loading_clearing_dataset_blueprint
+from app.loading_generating_playlist.loading_generating_playlist import loading_generating_playlist_blueprint
 from app.error.error import error_blueprint
 
 
@@ -28,5 +29,6 @@ def create_app():
     app.register_blueprint(loading_blueprint)
     app.register_blueprint(loading_adding_to_dataset_blueprint)
     app.register_blueprint(loading_clearing_dataset_blueprint)
+    app.register_blueprint(loading_generating_playlist_blueprint)
     app.register_blueprint(error_blueprint)
     return app
