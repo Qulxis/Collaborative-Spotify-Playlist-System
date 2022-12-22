@@ -43,30 +43,35 @@ class SpotifyHandler:
         """
         playlist_api_endpoint = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
         res = []
-        try:
-            tracks = json.loads(requests.get(playlist_api_endpoint, headers=auth_header).text)['items']
-        except:
-            print("API failed")
-        else:
-            for track in tracks:
-                try:
-                        {
-                        'track_artist': track['track']['artists'][0]['name'],
-                        'track_name': track['track']['name'],
-                        'track_image': track['track']['album']['images'][0]['url'],
-                        'track_url': track['track']['external_urls']['spotify'],
-                        'track_id': track['track']['id']
-                        }
-                except:
-                    print('error')
-                else:
-                    res.append({
-                        'track_artist': track['track']['artists'][0]['name'],
-                        'track_name': track['track']['name'],
-                        'track_image': track['track']['album']['images'][0]['url'],
-                        'track_url': track['track']['external_urls']['spotify'],
-                        'track_id': track['track']['id']
-                    })
+        didnt_pass = True
+        while didnt_pass:
+            try:
+                tracks = json.loads(requests.get(playlist_api_endpoint, headers=auth_header).text)['items']
+            except:
+                print("API failed")
+            else:
+                tracks = json.loads(requests.get(
+                    playlist_api_endpoint, headers=auth_header).text)['items']
+                for track in tracks:
+                    try:
+                            {
+                            'track_artist': track['track']['artists'][0]['name'],
+                            'track_name': track['track']['name'],
+                            'track_image': track['track']['album']['images'][0]['url'],
+                            'track_url': track['track']['external_urls']['spotify'],
+                            'track_id': track['track']['id']
+                            }
+                    except:
+                        print('error')
+                    else:
+                        res.append({
+                            'track_artist': track['track']['artists'][0]['name'],
+                            'track_name': track['track']['name'],
+                            'track_image': track['track']['album']['images'][0]['url'],
+                            'track_url': track['track']['external_urls']['spotify'],
+                            'track_id': track['track']['id']
+                        })
+                didnt_pass = False
 
         return res
            
