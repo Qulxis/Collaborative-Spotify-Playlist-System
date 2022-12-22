@@ -11,6 +11,28 @@ The project files in this repo are to be deployed locally. The interface uses a 
 
 To start, clone our repo and run ```$ pip install -r requirements.txt```. Then, update the hosting files with your Spotify API keys and connect the desired GCP bucket to store your data. Launch the Flask framework and allow users to login to their accounts to get started on your way to custom playlists! Detailed instructions below:
 
+<!-- TABLE OF CONTENTS -->
+<!-- ## Table of Contents
+
+* [About](#about-the-project)
+* [Built With](#built-with)
+
+## About The Project
+
+A Flask web app used to generate a Spotify playlist based on selected tracks and personal preferences.
+
+### Built With
+* [GCP] - computing
+* [PySpark] - data processing
+* [FIRESTORE] - datebase
+* [Flask](https://flask.palletsprojects.com/en/1.1.x/) - backend
+* [Bootstrap](https://getbootstrap.com) - frontend
+* [JQuery](https://jquery.com) - frontend
+* [Spotify API](https://developer.spotify.com/documentation/web-api/)
+* [SKLEARN] - ML modeling snd output
+* [CSS] for styling
+* [HTML] veiw port rendering -->
+
 ## Instructions:
 Clone using:
 
@@ -44,23 +66,4 @@ OR
 1. Run the file "run.py" in the folder "Spotify-Playlist-Generator/".
 2. Access the url "http://127.0.0.1:8002/" on your local machine and follow along on the UI!
 3. Enjoy making your playlists! 
-
-```
-├── README.md
-├── requirements.txt
-├── src
-│   ├── APIs
-│   │   └── spotipy_access.py
-│   ├── DataVisualization.ipynb
-│   ├── Organization.md
-│   ├── andrew_dev.ipynb
-│   ├── data
-│   │   ├── README.txt
-│   │   └── andrew
-│   │       └── andrew_last_2000_songs
-│   └── kenneth_dev.ipynb
-└── tree.ipynb
-
-4 directories, 10 files
-```
 
