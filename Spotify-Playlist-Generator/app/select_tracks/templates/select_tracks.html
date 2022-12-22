@@ -11,12 +11,12 @@
             <p>
                 You may either select tracks to add to our playlist dataset, <br>
                 clear our playlist dataset, <br>
-                or generate a brand new playlist based on what is available <br>
+                or generate a brand new playlist based on what is available. <br>
             </p>
         </div>
 
         <div class="text-center next-btn-div">
-            <form action="/" method="POST">
+            <form action="/route_to_dataset_clearing" method="POST">
                 <input type="hidden" id="clear" name="clear_playlists_button" value="">
                 <a>
                     <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit">
@@ -27,7 +27,7 @@
         </div>
 
         <div class="text-center next-btn-div">
-            <form action="/" method="POST">
+            <form action="/route_to_playlist_generation" method="POST">
                 <input type="hidden" id="generate" name="generate_playlists_button" value="">
                 <a>
                     <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit">
@@ -98,7 +98,7 @@
         </ul>
 
         <div class="text-center next-btn-div">
-            <form action="/route_to_dataset_loading" method="POST" onsubmit="return validateSelectTracks();">
+            <form action="/route_to_adding_to_dataset_loading" method="POST" onsubmit="return validateSelectTracks();">
                 <input type="hidden" id="selected_playlists" name="selected_playlists" value="">
                 <a>
                     <button class="btn next-btn btn-primary" value="submit" id="next-btn" type="submit"

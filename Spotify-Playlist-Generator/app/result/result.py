@@ -25,6 +25,10 @@ result_blueprint = Blueprint(
     'result_bp', __name__, template_folder='templates')
 spotify_handler = SpotifyHandler()
 
+
+def extract_letters(string):
+    return ''.join([letter for letter in string if not letter.isdigit()])
+
 ## Edit this to do all playlists
 def get_playlist_tracks(playlists):
     """
@@ -90,8 +94,36 @@ def get_info(track_ids): #Formats
     return features
 
 
-@result_blueprint.route("/route_to_dataset_loading", methods=['GET', 'POST'])
-def callback():
+@result_blueprint.route("/route_to_dataset_clearing", methods=['GET', 'POST'])
+def dataset_clearing_callback():
+    auth = os.environ['AUTH_PATH']
+    try:  # Clearing just for demo. Should only clear to reset all stored data
+        clear_collection('playlists_of_interest', auth=auth)
+        clear_collection('playlists_of_no_interest', auth=auth)
+        print("dataset cleared")
+    except:
+        print("collections don't exist")
+
+    authorization_header = session['authorization_header']
+    # -------- Get user's name, id, and set session --------
+    profile_data = spotify_handler.get_user_profile_data(
+        authorization_header)
+    user_display_name, user_id = profile_data['display_name'], profile_data['id']
+    session['user_id'], session['user_display_name'] = user_id, user_display_name
+
+    # -------- Get user playlist data --------
+    playlist_data = spotify_handler.get_user_playlist_data(
+        authorization_header, user_id)
+    session["playlist_data"] = playlist_data
+
+    return render_template('select_tracks.html',
+                            user_display_name=user_display_name,
+                            playlists_data=playlist_data,
+                            func=extract_letters)
+
+
+@result_blueprint.route("/route_to_adding_to_dataset_loading", methods=['GET', 'POST'])
+def dataset_addition_callback():
     """
     when adding datasets is intitiated first start up the loading page
     the page will call
@@ -100,7 +132,7 @@ def callback():
         ',')  # Returns playlist ids (array)
     session['selected_playlists'] = selected_playlists
     # print(selected_playlists)
-    return redirect(url_for("loading_dataset_bp.loading"))
+    return redirect(url_for("loading_adding_to_dataset_bp.loading"))
 
 @result_blueprint.route("/add_selected_to_dataset", methods=['GET', 'POST'])
 def add_to_dataset():
@@ -163,12 +195,13 @@ def add_to_dataset():
                 collection='bigdata2', num_tracks=1000)
         except:
             print("failed to load reference data")
-        return redirect(url_for("loading_dataset_bp.loading"))
+        return redirect(url_for("loading_adding_to_dataset_bp.loading"))
         ###############################################################################
     
     return redirect(url_for('not_found'))
 
-@result_blueprint.route("/your-playlist", methods=['GET', 'POST'])
+
+@result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
     authorization_header = session['authorization_header']
     if request.method == 'POST':
@@ -357,10 +390,6 @@ def your_playlist():
         '''
 
     return redirect(url_for('not_found'))
-
-
-
-    
 
 
 @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
