@@ -25,7 +25,6 @@ result_blueprint = Blueprint(
     'result_bp', __name__, template_folder='templates')
 spotify_handler = SpotifyHandler()
 
-
 def extract_letters(string):
     return ''.join([letter for letter in string if not letter.isdigit()])
 
@@ -208,24 +207,17 @@ def add_to_dataset():
                       'playlists_of_interest', auth=auth)
         add_playlists(playlists_of_no_interest,
                       'playlists_of_no_interest', auth=auth)
-
-        # READ in data from our 100k collection example:
-        try:
-            # We just load it in for demo, not using it
-            dummy_data = load_reference_data(
-                collection='bigdata2', num_tracks=1000)
-        except:
-            print("failed to load reference data")
         return redirect(url_for("loading_adding_to_dataset_bp.loading"))
         ###############################################################################
 
     return redirect(url_for('not_found'))
 
-@result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
-def dataset_generation_callback():
-    return redirect(url_for("loading_generating_playlist_bp.loading"))
+# @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
+# def dataset_generation_callback():
+#     return redirect(url_for("loading_generating_playlist_bp.loading"))
 
-@result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
+# @result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
+@result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
     authorization_header = session['authorization_header']
     if request.method == 'POST':
@@ -258,7 +250,7 @@ def your_playlist():
         favorites_df.to_csv('track_features.csv')
 
         training_df = favorites_df[["acousticness", "danceability", "duration_ms", "energy", "instrumentalness",
-                                    "key", "liveness", "loudness", "mode", "speechiness", "tempo", "valence", "rating"]]
+                                    "key", "liveness", "loudness", "speechiness", "tempo", "valence", "rating"]]
 
         print(training_df)
 
@@ -309,36 +301,59 @@ def your_playlist():
         print(f"Using {rec_tracks_per_track} test tracks per track")
 
         print("1111")
+        # try:
+        #     get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={10}"
+        #     response = requests.get(get_reccomended_url,
+        #                             headers=authorization_header,
+        #                             params={'seed_tracks': good_track_ids}).text
+        #     rec_tracks = json.loads(response)['tracks']
+        # except:
+        #     print("error recommandation")
+        
+        # print("AAAA")
+        # rec_track_ids = []
+        # rec_track_names = []
+        # for i in rec_tracks:
+        #     rec_track_ids.append(i['id'])
+        #     rec_track_names.append(i['name'])
+
+        # rec_features = get_features(rec_track_ids)
+
+        # rec_playlist_df = pd.DataFrame(rec_features, index=rec_track_names)
+        # rec_playlist_df.drop_duplicates(subset='id', inplace=True)
+        # rec_track_names = rec_playlist_df.index.tolist()
+
+        # READ in data from our 100k collection example:
         try:
-            print("AAAA")
-            get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={100}"
-            response = requests.get(get_reccomended_url,
-                                    headers=authorization_header,
-                                    params={'seed_tracks': good_track_ids}).text
-            rec_tracks = json.loads(response)['tracks']
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
         except:
-            print("error recommandation")
-
-        rec_track_ids = []
-        rec_track_names = []
-        for i in rec_tracks:
-            rec_track_ids.append(i['id'])
-            rec_track_names.append(i['name'])
-
-        rec_features = get_features(rec_track_ids)
-
-        rec_playlist_df = pd.DataFrame(rec_features, index=rec_track_names)
-        rec_playlist_df.drop_duplicates(subset='id', inplace=True)
-        rec_track_names = rec_playlist_df.index.tolist()
-
+            print("failed to load reference data")
+        else:
+            # We just load it in for demo, not using it
+            dummy_data = load_reference_data(
+                collection='bigdata2', num_tracks=1000)
+            rec_playlist_df = pd.DataFrame(dummy_data, index=False)
+            rec_playlist_df = rec_playlist_df.rename(
+                columns={'durationMs': 'duration_ms'})
+            print(rec_playlist_df.head())
+            print(rec_playlist_df.columns)
+        
         testing_df = rec_playlist_df[
             [
                 "acousticness", "danceability", "duration_ms", "energy",
-                "instrumentalness",  "key", "liveness", "loudness", "mode",
+                "instrumentalness",  "key", "liveness", "loudness",
                 "speechiness", "tempo", "valence"
             ]
         ]
-
+        print(testing_df)
+        print(testing_df.columns)
         testing_df_scaled = StandardScaler().fit_transform(testing_df)
 
         X_test = pca.transform(testing_df_scaled)
@@ -383,6 +398,7 @@ def your_playlist():
 
 
         data = get_info(track_ids = final_tracks['id'].values.tolist()) # Get track formated data
+        session['new_playlist'] = data
         return render_template('result.html', data=data) #changed from results.html -Andrew + Kenneth
 
         ###########################
@@ -402,9 +418,9 @@ def your_playlist():
     return redirect(url_for('not_found'))
 
 
-@result_blueprint.route("/result", methods=['GET', 'POST'])
-def result():
-    return render_template('result.html')
+# @result_blueprint.route("/result", methods=['GET', 'POST'])
+# def result():
+#     return render_template('result_bp.result.html')
 
 @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
 def save_playlist():

@@ -22,8 +22,10 @@
             $.ajax({
                 type: 'POST',
                 url: '/playlist_generation',
+                // data: [],
                 success: function () {
                     window.location.replace('/result');
+                    // $("#div1").load(data);
                 }
             });
         </script>
