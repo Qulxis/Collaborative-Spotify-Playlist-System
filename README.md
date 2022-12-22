@@ -51,8 +51,8 @@ Install the required packages:
 
 ### Add Firestore Authentication and Update Paths:
 You must have access to a Firestore database collection and its authentication file. For more and setting up a Firestore database on GCP, see (https://firebase.google.com/docs/auth). Once you have the SDK-authentication file, perform the following steps to allow the project to use it:
-1. Upload the SDK authentication file to Spotify-Playlist-Generator/app/backend/auth/ . (Note if using the orignal SDK file, steps 2&3 are not required for Firestore setup).
-2. Copy the relative path to that SDK file, 'app/backend/auth/YOUR_SDK_FILENAME_HERE.json', and then update the variable "AUTH_PATH" to this path as a string in Spotifpy-Playlist-Generator/.env.
+1. Upload the SDK authentication file to Collaborative-Spotify-Playlist-Generator/app/backend/auth/ . (Note if using the orignal SDK file, steps 2&3 are not required for Firestore setup).
+2. Copy the relative path to that SDK file, 'app/backend/auth/YOUR_SDK_FILENAME_HERE.json', and then update the variable "AUTH_PATH" to this path as a string in Collaborative-Spotifpy-Playlist-Generator/.env.
 3. Save all changes to files.
 
 ### Add Spotify Authentication:
@@ -63,7 +63,7 @@ OR
 2. Setup a Spotify Developer Account and project (https://developer.spotify.com/dashboard) to add accounts, then update the CLIENT_ID and CLIENT_SECRET variables in Spotifpy-Playlist-Generator/.env accordingly.
 
 ### Run the app!
-1. Run the file "run.py" in the folder "Spotify-Playlist-Generator/".
+1. Run the file "run.py" in the folder "Collaborative-Spotify-Playlist-Generator/".
 2. Access the url "http://127.0.0.1:8002/" on your local machine and follow along on the UI!
 3. Enjoy making your playlists! 
 
