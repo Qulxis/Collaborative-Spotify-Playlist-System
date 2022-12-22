@@ -58,13 +58,13 @@ def get_playlist_tracks(playlists):
     """
     track_ids = []
     track_names = []
-    try:
-        for playlist in [playlists[0]]: # change to playlist in playlists later for fullset
-            for track in playlist['playlist_tracks'][5:]:
-                track_ids.append(track['track_id'])
-                track_names.append(track['track_name'].encode(encoding='UTF-8',errors='strict'))
-    except:
-        print("Can't encode output")
+    for playlist in playlists[0:2]: # change to playlist in playlists later for fullset
+            for track in playlist['playlist_tracks'][:5]:
+                try:
+                    track_ids.append(track['track_id'])
+                    track_names.append(track['track_name'].encode(encoding='UTF-8',errors='strict'))
+                except:
+                    print("Can't encode output")
 
     return track_ids, track_names
 
@@ -227,7 +227,6 @@ def your_playlist():
         bad_track_ids = []
         bad_track_names = []
         print("\n -ve playlists: ", len(playlists_of_no_interest))
-
         tmp_ids, tmp_names = get_playlist_tracks(playlists_of_no_interest)
         print("bad tracks", tmp_ids)
 
@@ -326,7 +325,6 @@ def your_playlist():
         # Using 100k
         # ###############################################################################
         try:
-            # We just load it in for demo, not using it
             dummy_data = load_reference_data(collection='bigdata2', num_tracks=1000)
             print("Reference data loaded?", not not dummy_data)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
@@ -336,9 +334,9 @@ def your_playlist():
             print(rec_playlist_df.head())
             print(rec_playlist_df.columns)
         except:
-            print("failed to load reference data")
+            print("failed to load reference data first time")
         else:
-            # We just load it in for demo, not using it
+
             dummy_data = load_reference_data(
                 collection='bigdata2', num_tracks=1000)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
@@ -346,7 +344,6 @@ def your_playlist():
                 columns={'durationMs': 'duration_ms'})
             print(rec_playlist_df.head())
             print(rec_playlist_df.columns)
-        # We just load it in for demo, not using it
         dummy_data = load_reference_data(
             collection='bigdata2', num_tracks=1000)
         rec_playlist_df = pd.DataFrame(dummy_data)
