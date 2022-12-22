@@ -2,7 +2,9 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 import numpy as np
 import pandas as pd
-default_auth_path = "app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json"
+import os 
+
+default_auth_path = os.environ['AUTH_PATH']
 
 def add_playlists(playlists,collection, auth=default_auth_path):
     """
