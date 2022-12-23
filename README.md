@@ -76,4 +76,5 @@ OR
 1. Run the file "run.py" in the folder "Collaborative-Spotify-Playlist-Generator/".
 2. Access the url "http://127.0.0.1:8002/" on your local machine and follow along on the user interface. Note that generation steps may take longer given large playlists.
 3. Enjoy making your playlists! 
-
+## Breakdown
+A breakdown of our process is contained in the Jupyter Notebook files in src. We have demos for using the backend, using Spotipy,visualization and EDA, modeling, and Spark processing of the reference data using Spark.
