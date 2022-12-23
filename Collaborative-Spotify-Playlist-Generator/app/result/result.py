@@ -364,7 +364,7 @@ def your_playlist():
         # Load in 100k dataset
         ####################################################################
         try:
-            dummy_data = load_reference_data(collection='bigdata2', num_tracks=2000) # Set to top 2000. See docs in backend for more options
+            dummy_data = load_reference_data(collection='bigdata2', sort_by='rank', num_tracks=2000) # Set to top 2000. See docs in backend for more options
             print("Reference data loaded?", not not dummy_data)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
             print("columns of rec:", rec_playlist_df.columns)
@@ -377,14 +377,14 @@ def your_playlist():
         else:
 
             dummy_data = load_reference_data(
-                collection='bigdata2', num_tracks=1000)
+                collection='bigdata2',sort_by='rank', num_tracks=2000)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
             rec_playlist_df = rec_playlist_df.rename(
                 columns={'durationMs': 'duration_ms'})
             print(rec_playlist_df.head())
             print(rec_playlist_df.columns)
         dummy_data = load_reference_data(
-            collection='bigdata2', num_tracks=1000)
+            collection='bigdata2', sort_by='rank', num_tracks=2000)
         rec_playlist_df = pd.DataFrame(dummy_data)
         rec_playlist_df = rec_playlist_df.rename(
             columns={'durationMs': 'duration_ms'})
@@ -438,23 +438,36 @@ def your_playlist():
         
         
         
-        tracks_uri = [track for track in final_tracks['uri']]
+        tracks_uri = [track for track in final_tracks['uri']] # get uris in final_tracks
+
         #Thresholding to top 20 songs
         if len(tracks_uri) > 20:
             tracks_uri = tracks_uri[0:20]
             print("Too many songs selected by model, changing to top 20 uri")
+        # If empty, use top 20 songs
+        if len(tracks_uri) == 0:
+            print("using default uri")
+            tracks_uri = rec_playlist_df['uri'].values.tolist()[:20]
         
-        session['tracks_uri'] = tracks_uri
+        session['tracks_uri'] = tracks_uri # Store track Uris to session
         # Save to df:
         tracks_uri_df = pd.DataFrame(columns=["tracks_uri"], data=tracks_uri)
         tracks_uri_df.to_csv('tracks_uri.csv')
         print("Saved")
-        print("tracks_uri",session['tracks_uri'])
+        print("tracks_uri", session['tracks_uri'])
 
+
+        # Track Ids: Same as uri 
         track_ids = final_tracks['id'].values.tolist()
+        #Thresholding to top 20 songs
         if len(track_ids) > 20:
             track_ids = track_ids[0:20]
             print("Too many songs selected by model, changign to top 20")
+        # If no songs selected, use top 20 from current charts:
+        if len(track_ids) == 0:
+            print("using default ids")
+            track_ids = rec_playlist_df['id'].values.tolist()[:20]
+        
             
         data = get_info(track_ids = track_ids) # Get track formated data        
 
