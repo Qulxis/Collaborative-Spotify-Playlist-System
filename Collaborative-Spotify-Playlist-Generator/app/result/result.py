@@ -30,6 +30,13 @@ def extract_letters(string):
     return ''.join([letter for letter in string if not letter.isdigit()])
 
 def get_current_playlists():
+    """
+    Returns all the current playlist in session storage
+    Inputs:
+    - None
+    Outputs:
+    - playlist_data (arr): each element is a playlist    
+    """
     authorization_header = session['authorization_header']
     # -------- Get user's name, id, and set session --------
     profile_data = spotify_handler.get_user_profile_data(
@@ -54,8 +61,8 @@ def get_playlist_tracks(playlists):
     Inputs: 
     - playlist (arr): elements are dictionary format of playlist
     Ouputs:
-    - track_ids (arr):
-    - track_names (arr): 
+    - track_ids (arr): each element (str) is a track id code from Spotipy
+    - track_names (arr): each element (str) is the name of a track
     """
     track_ids = []
     track_names = []
@@ -123,6 +130,10 @@ def dataset_clearing_callback():
 
 @result_blueprint.route("/clear_dataset", methods=['GET', 'POST'])
 def clear_dataset():
+    """
+    This function clears the collection of 'playlists_of_interest' and 'playlists_of_no_interest.
+    Returns: redirect
+    """
     if request.method == 'POST':
         auth = os.environ['AUTH_PATH']
         try:  # Clearing just for demo. Should only clear to reset all stored data
@@ -155,6 +166,17 @@ def dataset_addition_callback():
 
 @result_blueprint.route("/add_selected_to_dataset", methods=['GET', 'POST'])
 def add_to_dataset():
+    """
+    This function look at playlist from session's 'selected_playlists' and then uses the exisiting total
+    set to then create a set of interesting playlists and not interesting playlists.
+    The outputs are stored in the firestore database for further use.
+    Last user always has priority to change playlists from interesting to not interesting.
+
+    Inputs:
+    - None
+    Ouput:
+    - Redirect
+    """
     selected_playlists = session['selected_playlists']
     print(selected_playlists)
 
@@ -173,8 +195,7 @@ def add_to_dataset():
                 playlists_of_no_interest.append(playlist)
 
         ##########################################################################
-        #FIRESTORE TEST:
-        #WRITE/add playlists
+        #FIRESTORE Processing:
         auth = os.environ['AUTH_PATH']
         try:  # If playlist collections exist, get the data
             final_playlists_of_interest = get_playlists(
@@ -203,7 +224,7 @@ def add_to_dataset():
         clear_collection('playlists_of_interest', auth=auth)
         clear_collection('playlists_of_no_interest', auth=auth)
 
-        #write new sets:
+        #Write new Sets:
         playlists_of_interest = final_playlists_of_interest
         playlists_of_no_interest = final_playlists_of_no_interest
 
@@ -216,18 +237,25 @@ def add_to_dataset():
 
     return redirect(url_for('not_found'))
 
-# @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
-# def dataset_generation_callback():
-#     return redirect(url_for("loading_generating_playlist_bp.loading"))
 
-# @result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
 @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
+    """
+    Main function: 
+    - Fetches all existing data from user inputs from firestore and gathers metadata features for each track
+    - Generate RF model
+    - Gather's reference data (data to select new songs from)
+    - Thresholding song limits
+    - Creates final playlist in URIs stored in session and in a csv file, tracks_uri.csv
+
+
+    
+    """
     # global tracks_uri
     authorization_header = session['authorization_header']
     auth = os.environ['AUTH_PATH']
     if request.method == 'POST':
-        #READ in whatever is stored. In this case, becaues we cleared it at step1, it's just what we wrote
+        #Read data and access metadata features for each track. Also labels the data for training
         playlists_of_interest = get_playlists('playlists_of_interest',auth=auth)
         playlists_of_no_interest = get_playlists('playlists_of_no_interest',auth=auth)
 
@@ -257,7 +285,8 @@ def your_playlist():
         favorites_df['rating'] = ratings
         favorites_df.to_csv('track_features.csv')
         print("column names", favorites_df.columns)
-
+        ############################################################################################
+        # MODEL Training:
         training_df = favorites_df[["acousticness", "danceability", "duration_ms", "energy", "instrumentalness", "liveness", "loudness", "speechiness", "tempo", "valence", "rating"]] #REMOVE MODE AND KEY
 
         print(training_df)
@@ -300,10 +329,9 @@ def your_playlist():
         forest_grid.fit(X_train, y_train)
         print("Best score: ", forest_grid.best_score_)
 
-        #Test
         #############################################################
         # # Using Recommendation system
-
+        #############################################################
         # rec_tracks_per_track = 2
         # max_rec_tracks = 2000
         # rec_tracks_per_track = min([max_rec_tracks, len(
@@ -333,10 +361,10 @@ def your_playlist():
         # rec_playlist_df.drop_duplicates(subset='id', inplace=True)
         # rec_track_names = rec_playlist_df.index.tolist()
         ####################################################################
-        # Using 100k
-        # ###############################################################################
+        # Load in 100k dataset
+        ####################################################################
         try:
-            dummy_data = load_reference_data(collection='bigdata2', num_tracks=2000)
+            dummy_data = load_reference_data(collection='bigdata2', num_tracks=2000) # Set to top 2000. See docs in backend for more options
             print("Reference data loaded?", not not dummy_data)
             rec_playlist_df = pd.DataFrame(dummy_data, index=False)
             print("columns of rec:", rec_playlist_df.columns)
@@ -364,7 +392,7 @@ def your_playlist():
         print(rec_playlist_df.columns)
         rec_playlist_df.drop_duplicates(subset='id', inplace=True) # remove duplicates
         ###############################################################################################
-        
+        # New Track selection
         testing_df = rec_playlist_df[
             [
                 "acousticness", "danceability", "duration_ms", "energy",
@@ -399,15 +427,9 @@ def your_playlist():
         final_tracks = rec_playlist_df[y_pred_final.astype(bool)]
         print(final_tracks.columns)
         final_tracks_list = final_tracks.values.tolist() # original into to render_template
-        # final_tracks_list = testing_df.tolist()
-
-        # print(testing_df)
-        # print(testing_df['uri'])
+     
         print("END")
-        # print("rec keys:", rec_playlist_df.keys)
-        # tracks_uri = [track for track in rec_playlist_df['uri']]
-        # session['tracks_uri'] = tracks_uri
-        # return render_template('result.html', data=rec_tracks)
+        
 
         try:
             print("rec keys:", final_tracks.keys)
@@ -417,7 +439,7 @@ def your_playlist():
         
         
         tracks_uri = [track for track in final_tracks['uri']]
-
+        #Thresholding to top 20 songs
         if len(tracks_uri) > 20:
             tracks_uri = tracks_uri[0:20]
             print("Too many songs selected by model, changing to top 20 uri")
@@ -439,29 +461,22 @@ def your_playlist():
         session['new_playlist'] = data
         return render_template('result.html', data=data) #changed from results.html -Andrew + Kenneth
 
-        ###########################
 
-        '''
-        get_reccomended_url = f"https://api.spotify.com/v1/recommendations?limit={5}"
-        response = requests.get(get_reccomended_url,
-                                headers=authorization_header,
-                                params=params).text
-        tracks = list(json.loads(response)['tracks'])
-        tracks_uri = [track['uri'] for track in tracks]
-        session['tracks_uri'] = tracks_uri
-
-        return render_template('result.html', data=tracks)
-        '''
 
     return redirect(url_for('not_found'))
 
 
-# @result_blueprint.route("/result", methods=['GET', 'POST'])
-# def result():
-#     return render_template('result_bp.result.html')
 
 @result_blueprint.route("/save-playlist", methods=['GET', 'POST'])
 def save_playlist():
+    """
+    This function takes the uris of the model-selected track and uses them to generate 
+    a playlist in the user's spotify libarary.
+    Inputs:
+    - None
+    Ouputs:
+    - Rendered template for final playlist view   
+    """
     authorization_header = session['authorization_header']
     user_id = session['user_id']
 
