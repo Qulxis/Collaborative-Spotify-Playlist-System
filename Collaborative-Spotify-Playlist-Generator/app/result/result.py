@@ -247,9 +247,6 @@ def your_playlist():
     - Gather's reference data (data to select new songs from)
     - Thresholding song limits
     - Creates final playlist in URIs stored in session and in a csv file, tracks_uri.csv
-
-
-    
     """
     # global tracks_uri
     authorization_header = session['authorization_header']
