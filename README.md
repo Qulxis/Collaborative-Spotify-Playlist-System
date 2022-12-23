@@ -32,6 +32,7 @@ The project files in this repo are to be deployed locally. The interface uses a 
 * [SKLEARN] - ML modeling snd output
 * [CSS] for styling
 * [HTML] veiw port rendering
+* [Python] script language (Developed for versions 3.7-3.9)
 
 ## Instructions:
 Clone using:
