@@ -1,7 +1,7 @@
 src/data/*
-Collaborative-Spotify-Playlist-Generator/app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json
-Collaborative-Spotify-Playlist-Generator/app/backend/auth/*
+# Collaborative-Spotify-Playlist-Generator/app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json
+# Collaborative-Spotify-Playlist-Generator/app/backend/auth/*
 *.pyc
 Collaborative-Spotify-Playlist-Generator/tracks_uri.csv
-Collaborative-Spotify-Playlist-Generator/app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json
+# Collaborative-Spotify-Playlist-Generator/app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json
 # *.json
