@@ -223,7 +223,7 @@ def add_to_dataset():
 # @result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
 @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
-    global tracks_uri
+    # global tracks_uri
     authorization_header = session['authorization_header']
     auth = os.environ['AUTH_PATH']
     if request.method == 'POST':
@@ -415,10 +415,19 @@ def your_playlist():
             print("rec keys failed to display, this is a encoding error")
         
         
-
+        
         tracks_uri = [track for track in final_tracks['uri']]
+
+        if len(tracks_uri) > 20:
+            tracks_uri = tracks_uri[0:20]
+            print("Too many songs selected by model, changing to top 20 uri")
+        
         session['tracks_uri'] = tracks_uri
-        print(tracks_uri)
+        # Save to df:
+        tracks_uri_df = pd.DataFrame(columns=["tracks_uri"], data=tracks_uri)
+        tracks_uri_df.to_csv('tracks_uri.csv')
+        print("Saved")
+        print("tracks_uri",session['tracks_uri'])
 
         track_ids = final_tracks['id'].values.tolist()
         if len(track_ids) > 20:
@@ -471,7 +480,8 @@ def save_playlist():
 
     playlist_id = json.loads(response)['id']
     print("session_keys",session)
-    #tracks_uri = session['tracks_uri']
+    tracks_uri_df = pd.read_csv('tracks_uri.csv')
+    tracks_uri = tracks_uri_df["tracks_uri"].values.tolist()
     tracks_data = json.dumps({
         "uris": tracks_uri,
     })
