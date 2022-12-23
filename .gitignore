@@ -1,3 +1,4 @@
 src/data/*
 Spotify-Playlist-Generator/app/backend/auth/ecbm4040-ahx2001-firebase-adminsdk-hpfc4-3bffe3cdfc.json
 Spotify-Playlist-Generator/app/backend/auth/*
+*.pyc
