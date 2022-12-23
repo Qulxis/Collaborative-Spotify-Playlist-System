@@ -9,18 +9,18 @@ def add_playlists(playlists,collection, auth=default_auth_path):
     Inputs:
     - playlists:
     Playlist must be a list of dictionaries in the form:
-        'playlist_name': playlist['name'],
-        'playlist_url': playlist['external_urls']['spotify'],
-        'playlist_img_url': playlist['images'][0]['url'],
-        'playlist_tracks_url': playlist['tracks']['href'],
-        'playlist_id': playlist['id'],
+        'playlist_name': str,
+        'playlist_url': str,
+        'playlist_img_url': str,
+        'playlist_tracks_url': str,
+        'playlist_id': str,
         'playlist_tracks': self._get_playlist_tracks(auth_header, playlist['id'])
     Songs must be in format of:
-        'track_artist': track['track']['artists'][0]['name'],
-        'track_name': track['track']['name'],
-        'track_image': track['track']['album']['images'][0]['url'],
-        'track_url': track['track']['external_urls']['spotify'],
-        'track_id': track['track']['id']
+        'track_artist': str,
+        'track_name': str,
+        'track_image': str,
+        'track_url': str,
+        'track_id': str
         }
     collection (str): collection to add playlists to
     auth (str): path to auth file.
@@ -36,8 +36,16 @@ def add_playlists(playlists,collection, auth=default_auth_path):
     db = firestore.client()
 
     for record in playlists:
-        doc_ref = db.collection(collection).document(record['playlist_name'])
-        doc_ref.set(record)
+        try:
+            doc_ref = db.collection(collection).document(record['playlist_name'])
+            doc_ref.set(record)
+        except:
+            print("uft-8 failed, saving with no document name")
+            try:
+                doc_ref = db.collection(collection).document()
+                doc_ref.set(record)
+            except:
+                print("could not add",record['playlist_name'].encode(encoding='UTF-8',errors='strict'))
     return
 
 def clear_collection(collection, auth=default_auth_path):
@@ -60,7 +68,10 @@ def clear_collection(collection, auth=default_auth_path):
     docs = ref_coll.stream()
     for doc in docs:
         db.collection(collection).document(doc.id).delete()
-        print("Deleting Playlist:", doc.id )
+        try: 
+            print("Deleting Playlist:".encode(encoding='UTF-8',errors='strict'), str(doc.id).encode(encoding='UTF-8',errors='strict') )
+        except:
+            print("Deleted playlist with unreadable name")
     return
 def get_playlists(collection,auth=default_auth_path):
     """
@@ -68,7 +79,7 @@ def get_playlists(collection,auth=default_auth_path):
     - collection (str): collection to gather data from
     - auth (str): 
     Output:
-    - playlists (arr): each element is a playlist dictionary
+    - playlists (arr): each element is a playlist dictionary as described in add_playlists
     """
     try: 
         cred = credentials.Certificate(auth)
@@ -99,7 +110,7 @@ def get_track_ids(playlists):
     return list(set(song_ids))
 
 def load_reference_data(collection='bigdata2',num_tracks=1000,sort_by=None,auth=default_auth_path,
-selected_features = ['acousticness', 'danceability','durationMs', 'energy', 'instrumentalness', 'key','liveness','loudness','mode','speechiness','tempo','valence']):
+selected_features = ['id','title', 'uri', 'acousticness', 'danceability','durationMs', 'energy', 'instrumentalness', 'key','liveness','loudness','speechiness','tempo','valence']):
     """
     Inputs:
     - collection (str): must be to collection where each element is just the features of the track
@@ -108,7 +119,7 @@ selected_features = ['acousticness', 'danceability','durationMs', 'energy', 'ins
     - auth (str): path to authentication token
 
     Outputs:
-
+    - df[selected_features] (pandas dataframe): each element is a track and its data
     """
     try: 
         cred = credentials.Certificate(auth)
@@ -127,6 +138,9 @@ selected_features = ['acousticness', 'danceability','durationMs', 'energy', 'ins
         # print()
         df = pd.concat([df,pd.DataFrame([doc.to_dict()])])
     return df[selected_features]
+
+
+
 
 
 

@@ -67,3 +67,63 @@ OR
 2. Access the url "http://127.0.0.1:8002/" on your local machine and follow along on the UI!
 3. Enjoy making your playlists! 
 
+```
++---Collaborative-Spotify-Playlist-Generator
+�   +---app
+�       +---auth
+�       �   +---__pycache__
+�       +---backend
+�       �   +---auth
+�       �   +---__pycache__
+�       +---error
+�       �   +---templates
+�       �   �   +---error
+�       �   +---__pycache__
+�       +---fine_tune
+�       �   +---templates
+�       �   +---__pycache__
+�       +---home
+�       �   +---templates
+�       �   +---__pycache__
+�       +---loading
+�       �   +---templates
+�       �   +---__pycache__
+�       +---loading_adding_to_dataset
+�       �   +---templates
+�       �   +---__pycache__
+�       +---loading_clearing_dataset
+�       �   +---templates
+�       �   +---__pycache__
+�       +---loading_generating_playlist
+�       �   +---templates
+�       �   +---__pycache__
+�       +---result
+�       �   +---templates
+�       �   +---__pycache__
+�       +---routes
+�       �   +---__pycache__
+�       +---select_tracks
+�       �   +---templates
+�       �   +---__pycache__
+�       +---spotify_api
+�       �   +---__pycache__
+�       +---static
+�       �   +---css
+�       �   +---images
+�       �   +---js
+�       +---templates
+�       +---tests
+�       �   +---fine_tune
+�       �   +---login_page
+�       �   +---main_page
+�       �   +---select_tracks_page
+�       �   +---utilities
+�       �   +---your_playlist
+�       +---__pycache__
++---src
+    +---.ipynb_checkpoints
+    +---APIs
+    +---data
+    �   +---andrew
+    +---__pycache__
+```
