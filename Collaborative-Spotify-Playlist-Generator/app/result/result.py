@@ -21,6 +21,7 @@ from sklearn.tree import plot_tree, DecisionTreeClassifier
 
 from app.backend.backend import *
 
+
 result_blueprint = Blueprint(
     'result_bp', __name__, template_folder='templates')
 spotify_handler = SpotifyHandler()
@@ -70,6 +71,16 @@ def get_playlist_tracks(playlists):
 
 
 def get_features(track_ids):
+    """
+    This function gets the metadata/features for tracks given a list of their ids
+    
+    Inputs:
+    - track_ids (arr): each element (str) is a track id from Spotify
+    Ouputs:
+    - features (arr): each element is an arr
+
+
+    """
     features = []
 
     for track_id in track_ids:
@@ -93,7 +104,6 @@ def get_info(track_ids): #Formats
     - features (arr): element is a track dictionary from spotify api: https://developer.spotify.com/console/get-track/
     """
     features = []
-
     for track_id in track_ids:
 
         try:
@@ -213,6 +223,7 @@ def add_to_dataset():
 # @result_blueprint.route("/playlist_generation", methods=['GET', 'POST'])
 @result_blueprint.route("/route_to_playlist_generation", methods=['GET', 'POST'])
 def your_playlist():
+    global tracks_uri
     authorization_header = session['authorization_header']
     auth = os.environ['AUTH_PATH']
     if request.method == 'POST':
@@ -459,8 +470,8 @@ def save_playlist():
                              data=playlist_data).text
 
     playlist_id = json.loads(response)['id']
-
-    tracks_uri = session['tracks_uri']
+    print("session_keys",session)
+    #tracks_uri = session['tracks_uri']
     tracks_data = json.dumps({
         "uris": tracks_uri,
     })

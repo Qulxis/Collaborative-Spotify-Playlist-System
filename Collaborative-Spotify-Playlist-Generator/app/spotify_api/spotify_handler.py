@@ -26,7 +26,8 @@ class SpotifyHandler:
         for playlist in playlists:
             # print()
             # print(playlist['name'])
-            playlist_data.append({
+            try:
+                playlist_data.append({
                 'playlist_name': playlist['name'],
                 'playlist_url': playlist['external_urls']['spotify'],
                 'playlist_img_url': playlist['images'][0]['url'],
@@ -34,6 +35,8 @@ class SpotifyHandler:
                 'playlist_id': playlist['id'],
                 'playlist_tracks': self._get_playlist_tracks(auth_header, playlist['id'])
             })
+            except:
+                print("Empty Dataset")
         return playlist_data
 
     @staticmethod
