@@ -51,10 +51,10 @@ Install the required packages:
 
 
 ### Add Firestore Authentication and Update Paths:
-**(Between the dates of 12/22/2022 and 01/02/2022, an existing authentication file will be in place and the Firestore steps can be skipped)**
+**NOTE that TAs for EECS6893 were sent an email containing the original SDK-Authentication file and just need to follow step 1**
 
 You must have access to a Firestore database collection and its authentication file. For more and setting up a Firestore database on GCP, see [Firebase Authetication](https://firebase.google.com/docs/auth). Once you have the SDK-authentication file, perform the following steps to allow the project to use it:
-1. Upload the SDK authentication file to Collaborative-Spotify-Playlist-Generator/app/backend/auth/ . (Note if using the orignal SDK file, steps 2&3 are not required for Firestore setup).
+1. Upload the SDK authentication file to Collaborative-Spotify-Playlist-Generator/app/backend/auth/. (Note if using the orignal SDK file, steps 2&3 are not required for Firestore setup).
 2. Copy the relative path to that SDK file, 'app/backend/auth/YOUR_SDK_FILENAME_HERE.json', and then update the variable "AUTH_PATH" to this path as a string in Collaborative-Spotifpy-Playlist-Generator/.env.
 3. Save all changes to files.
 4. In your Firestore account, add metadata for the collection of track in a collection which you should label as "bigdata2". We have included an example 100k set of tracks in "100k_demo.csv" which you can upload to your Firestore database using rowy.io [Guide to csv and Rowy.io](https://www.rowy.io/blog/import-csv-to-firestore).
