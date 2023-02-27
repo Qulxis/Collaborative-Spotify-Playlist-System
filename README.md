@@ -26,13 +26,13 @@ The project files in this repo are to be deployed locally. The interface uses a 
 * [PySpark] - data processing
 * [FIRESTORE](https://firebase.google.com/) - datebase
 * [Flask](https://flask.palletsprojects.com/en/1.1.x/) - backend
-* [Bootstrap](https://getbootstrap.com) - frontend
-* [JQuery](https://jquery.com) - frontend
 * [Spotify API](https://developer.spotify.com/documentation/web-api/)
-* [SKLEARN] - ML modeling snd output
+* [SKLEARN] - ML modeling and output
+* [Python] script language (Developed for versions 3.7-3.9)
+* [Bootstrap](https://getbootstrap.com) - frontend toolkit
+* [JavaScript](https://www.javascript.com/) - frontend
 * [CSS] for styling
 * [HTML] veiw port rendering
-* [Python] script language (Developed for versions 3.7-3.9)
 
 ## Instructions:
 Clone using:
